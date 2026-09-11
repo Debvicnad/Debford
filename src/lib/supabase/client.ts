@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "@/types/supabase.types";
 
 /**
  * Creates a Supabase client for use in browser/client components.
@@ -6,8 +7,8 @@ import { createBrowserClient } from "@supabase/ssr";
  * RLS policies enforce all authorization.
  */
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+
+  return createBrowserClient(url, anonKey);
 }

@@ -1,13 +1,22 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/db/queries";
 
 // ============================================================
 // HOMEPAGE — Debford
 // ============================================================
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+      const { data } = await supabase.auth.getUser();
+      user = data?.user ?? null;
+    } catch {
+      user = null;
+    }
+  }
   const initial = user?.email?.charAt(0).toUpperCase() ?? "U";
 
   return (

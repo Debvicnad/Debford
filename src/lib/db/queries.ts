@@ -112,6 +112,9 @@ export interface ListingFilters {
 }
 
 export async function getSaleListings(filters: ListingFilters = {}) {
+  if (!isSupabaseConfigured()) {
+    return { listings: [], total: 0, error: null };
+  }
   const supabase = await createClient();
   const limit = filters.limit ?? 12;
   const offset = ((filters.page ?? 1) - 1) * limit;
@@ -186,6 +189,9 @@ export async function getSaleListingBySlug(slug: string) {
 
 // ── Auction queries ───────────────────────────────────────────
 export async function getAuctions(status?: "live" | "upcoming" | "ended") {
+  if (!isSupabaseConfigured()) {
+    return { auctions: [], error: null };
+  }
   const supabase = await createClient();
   let query = supabase
     .from("auctions")
@@ -241,6 +247,9 @@ export async function getAuctionById(id: string) {
 
 // ── Rental queries ────────────────────────────────────────────
 export async function getRentalListings() {
+  if (!isSupabaseConfigured()) {
+    return { rentals: [], error: null };
+  }
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("rental_listings")
@@ -314,6 +323,7 @@ export async function getVehicleDetails(vehicleId: string) {
 
 // ── User-specific queries ─────────────────────────────────────
 export async function getMyVehicles() {
+  if (!isSupabaseConfigured()) return { vehicles: [], error: null };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { vehicles: [], error: "Not authenticated" };
@@ -335,6 +345,7 @@ export async function getMyVehicles() {
 }
 
 export async function getMyListings() {
+  if (!isSupabaseConfigured()) return { listings: [], error: null };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { listings: [], error: "Not authenticated" };
@@ -356,6 +367,7 @@ export async function getMyListings() {
 }
 
 export async function getDashboardStats() {
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -378,6 +390,7 @@ export async function getDashboardStats() {
 }
 
 export async function getNotifications(limit = 20) {
+  if (!isSupabaseConfigured()) return { notifications: [] };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { notifications: [] };
