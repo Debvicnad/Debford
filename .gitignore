@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 /scratch/
+push-to-github.bat
 
 # debug
 npm-debug.log*
