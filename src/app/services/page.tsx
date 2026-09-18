@@ -35,14 +35,14 @@ const FEATURED_PROVIDERS = [
 ];
 
 const SERVICE_CATEGORIES = [
-  { icon: "🔧", label: "Mechanic", count: 142, href: "/services?type=mechanic" },
-  { icon: "⚡", label: "Auto Electrician", count: 67, href: "/services?type=electrician" },
-  { icon: "🔬", label: "Diagnostics", count: 89, href: "/services?type=diagnostic" },
-  { icon: "🚗", label: "Body & Paint", count: 54, href: "/services?type=bodywork" },
-  { icon: "⭕", label: "Tires", count: 78, href: "/services?type=tires" },
-  { icon: "✨", label: "Detailing", count: 203, href: "/services?type=detailing" },
-  { icon: "🎨", label: "Customisation", count: 31, href: "/services?type=customization" },
-  { icon: "🏎️", label: "Performance", count: 22, href: "/services?type=performance" },
+  { icon: "🔧", label: "Mechanic", count: 142, href: "/services/providers?category=mechanic" },
+  { icon: "⚡", label: "Auto Electrician", count: 67, href: "/services/providers?category=diagnostic" },
+  { icon: "🔬", label: "Diagnostics", count: 89, href: "/services/providers?category=diagnostic" },
+  { icon: "🚗", label: "Body & Paint", count: 54, href: "/services/providers?category=bodywork" },
+  { icon: "⭕", label: "Tires", count: 78, href: "/services/providers?category=mechanic" },
+  { icon: "✨", label: "Detailing", count: 203, href: "/services/providers?category=detailing" },
+  { icon: "🎨", label: "Customisation", count: 31, href: "/services/providers?category=performance" },
+  { icon: "🏎️", label: "Performance", count: 22, href: "/services/providers?category=performance" },
 ];
 
 export default function ServicesPage() {
@@ -58,12 +58,16 @@ export default function ServicesPage() {
             <p className="text-slate-400 text-lg mb-6">
               Get quotes from verified mechanics, detailers, and specialists near you.
             </p>
-            <div className="flex gap-3">
-              <Link href="#request" className="px-6 py-3 gradient-brand text-white font-semibold rounded-xl hover:opacity-90 hover:shadow-lg hover:shadow-blue-500/20 transition-all">
+            <div className="flex flex-wrap gap-3">
+              <Link href="#request" className="px-6 py-3 gradient-brand text-white font-semibold rounded-xl hover:opacity-90 hover:shadow-lg hover:shadow-blue-500/20 transition-all text-sm">
                 Request a service →
               </Link>
-              <Link href="/services/providers" className="px-6 py-3 glass border border-white/15 text-slate-200 font-medium rounded-xl hover:border-white/25 hover:text-white transition-all">
-                Browse providers
+              <Link href="/services/requests" className="px-6 py-3 glass border border-blue-500/30 text-blue-300 font-semibold rounded-xl hover:border-blue-500/50 hover:text-white transition-all text-sm flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>Requests &amp; Quotes Hub</span>
+              </Link>
+              <Link href="/services/providers" className="px-6 py-3 glass border border-white/15 text-slate-200 font-medium rounded-xl hover:border-white/25 hover:text-white transition-all text-sm">
+                Browse specialists
               </Link>
             </div>
           </div>
@@ -71,6 +75,34 @@ export default function ServicesPage() {
       </div>
 
       <div className="container-debford py-10 space-y-12">
+        {/* Hub Callout Banner */}
+        <div className="p-5 sm:p-6 rounded-2xl glass border border-blue-500/20 bg-gradient-to-r from-blue-900/20 via-slate-900/40 to-slate-900/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl gradient-brand flex items-center justify-center text-white text-xl shrink-0 shadow-lg shadow-blue-500/20">
+              ⚡
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-white">Requests &amp; Quotes Hub</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  Live
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Review incoming bids from verified specialists, approve itemized quotes, or manage your confirmed bookings.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/services/requests"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl gradient-brand text-white text-xs font-bold hover:opacity-95 transition-all shadow-md shadow-blue-500/20 text-center"
+            >
+              Open Requests Hub →
+            </Link>
+          </div>
+        </div>
+
         {/* How it works */}
         <div>
           <h2 className="text-base font-bold text-white uppercase tracking-wider mb-6 text-center">How it works</h2>
