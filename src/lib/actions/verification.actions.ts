@@ -171,7 +171,22 @@ export async function submitIdVerification(payload: {
 
   if (profileError) return { error: profileError.message };
 
-  // 2. Notification to user
+  // 2. Insert into kyc_applications table if available
+  try {
+    await db.from("kyc_applications").insert({
+      user_id: user.id,
+      application_type: "individual_id",
+      full_name: payload.fullName.trim(),
+      id_type: payload.idType,
+      id_number: payload.idNumber.trim(),
+      issuing_country: payload.issuingCountry,
+      status: "pending",
+    });
+  } catch {
+    // Continue gracefully if migration not yet executed
+  }
+
+  // 3. Notification to user
   await db.from("notifications").insert({
     user_id: user.id,
     type: "system",
@@ -206,7 +221,7 @@ export async function submitBusinessVerification(payload: {
 
   const db = await getDb();
 
-  // Update profile role to dealer and status to pending
+  // 1. Update profile role to dealer and status to pending
   await db
     .from("profiles")
     .update({
@@ -218,6 +233,24 @@ export async function submitBusinessVerification(payload: {
     })
     .eq("id", user.id);
 
+  // 2. Insert into kyc_applications table if available
+  try {
+    await db.from("kyc_applications").insert({
+      user_id: user.id,
+      application_type: "dealer_license",
+      full_name: payload.businessName.trim(),
+      business_name: payload.businessName.trim(),
+      license_number: payload.licenseNumber.trim(),
+      business_type: payload.businessType,
+      city: payload.city.trim(),
+      country: payload.country.trim(),
+      status: "pending",
+    });
+  } catch {
+    // Continue gracefully
+  }
+
+  // 3. Notification to user
   await db.from("notifications").insert({
     user_id: user.id,
     type: "system",
@@ -247,6 +280,32 @@ export async function approveUserVerification(userId: string) {
 
   if (error) return { error: error.message };
 
+  // Update kyc_applications
+  try {
+    await db
+      .from("kyc_applications")
+      .update({
+        status: "verified",
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+  } catch {
+    // Graceful fallback
+  }
+
+  // Record audit log
+  try {
+    await db.from("admin_audit_logs").insert({
+      action_type: "verify_kyc",
+      target_type: "user_kyc",
+      target_id: userId,
+      target_title: `KYC Approved: User ${userId.slice(0, 8)}`,
+      notes: "Identity and compliance credentials verified by administrator.",
+    });
+  } catch {
+    // Graceful fallback
+  }
+
   // Notify user
   await db.from("notifications").insert({
     user_id: userId,
@@ -267,6 +326,8 @@ export async function approveUserVerification(userId: string) {
 export async function rejectUserVerification(userId: string, reason?: string) {
   const db = await getDb();
 
+  const rejectionText = reason || "Your identity document could not be verified. Please submit a clearer government-issued ID.";
+
   const { error } = await db
     .from("profiles")
     .update({
@@ -276,12 +337,39 @@ export async function rejectUserVerification(userId: string, reason?: string) {
 
   if (error) return { error: error.message };
 
+  // Update kyc_applications
+  try {
+    await db
+      .from("kyc_applications")
+      .update({
+        status: "rejected",
+        rejection_reason: rejectionText,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+  } catch {
+    // Graceful fallback
+  }
+
+  // Record audit log
+  try {
+    await db.from("admin_audit_logs").insert({
+      action_type: "reject_kyc",
+      target_type: "user_kyc",
+      target_id: userId,
+      target_title: `KYC Rejected: User ${userId.slice(0, 8)}`,
+      notes: rejectionText,
+    });
+  } catch {
+    // Graceful fallback
+  }
+
   // Notify user
   await db.from("notifications").insert({
     user_id: userId,
     type: "system",
     title: "Verification Needs Attention ⚠️",
-    body: reason || "Your identity document could not be verified. Please submit a clearer government-issued ID.",
+    body: rejectionText,
   });
 
   revalidatePath("/admin");
