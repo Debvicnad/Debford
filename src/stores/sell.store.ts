@@ -59,7 +59,10 @@ export interface SellFormData {
   auctionEndDate: string;
   highlights: string[];
 
-  // Step 5 — Review (no extra data, just confirmation)
+  // Meta
+  vinDecoded: boolean;        // true when VIN decoder was successfully used
+  isDraft: boolean;           // true once user has modified from defaults
+  lastSavedAt: string;        // ISO timestamp of last auto-save
 }
 
 interface SellFormStore {
@@ -75,6 +78,7 @@ interface SellFormStore {
   setPhotoFiles: (files: File[]) => void;
   setPrimaryPhoto: (index: number) => void;
   removePhoto: (index: number) => void;
+  reorderPhotos: (fromIndex: number, toIndex: number) => void;
   reset: () => void;
 }
 
@@ -90,7 +94,14 @@ const DEFAULTS: Partial<SellFormData> = {
   photoUrls: [],
   primaryPhotoIndex: 0,
   bidIncrement: "100",
+  vinDecoded: false,
+  isDraft: false,
+  lastSavedAt: "",
 };
+
+function nowIso() {
+  return new Date().toISOString();
+}
 
 export const useSellStore = create<SellFormStore>()(
   persist(
@@ -105,13 +116,22 @@ export const useSellStore = create<SellFormStore>()(
       prevStep: () => set((s) => ({ currentStep: Math.max(s.currentStep - 1, 1) })),
 
       updateData: (patch) =>
-        set((s) => ({ data: { ...s.data, ...patch } })),
+        set((s) => ({
+          data: {
+            ...s.data,
+            ...patch,
+            isDraft: true,
+            lastSavedAt: nowIso(),
+          },
+        })),
 
       addHighlight: (text) =>
         set((s) => ({
           data: {
             ...s.data,
             highlights: [...(s.data.highlights ?? []), text],
+            isDraft: true,
+            lastSavedAt: nowIso(),
           },
         })),
 
@@ -120,6 +140,8 @@ export const useSellStore = create<SellFormStore>()(
           data: {
             ...s.data,
             highlights: (s.data.highlights ?? []).filter((_, i) => i !== index),
+            isDraft: true,
+            lastSavedAt: nowIso(),
           },
         })),
 
@@ -129,7 +151,14 @@ export const useSellStore = create<SellFormStore>()(
           const next = existing.includes(feature)
             ? existing.filter((f) => f !== feature)
             : [...existing, feature];
-          return { data: { ...s.data, selectedFeatures: next } };
+          return {
+            data: {
+              ...s.data,
+              selectedFeatures: next,
+              isDraft: true,
+              lastSavedAt: nowIso(),
+            },
+          };
         }),
 
       setPhotoFiles: (files) => {
@@ -138,12 +167,26 @@ export const useSellStore = create<SellFormStore>()(
         old.forEach((url) => URL.revokeObjectURL(url));
         const urls = files.map((f) => URL.createObjectURL(f));
         set((s) => ({
-          data: { ...s.data, photoFiles: files, photoUrls: urls, primaryPhotoIndex: 0 },
+          data: {
+            ...s.data,
+            photoFiles: files,
+            photoUrls: urls,
+            primaryPhotoIndex: 0,
+            isDraft: true,
+            lastSavedAt: nowIso(),
+          },
         }));
       },
 
       setPrimaryPhoto: (index) =>
-        set((s) => ({ data: { ...s.data, primaryPhotoIndex: index } })),
+        set((s) => ({
+          data: {
+            ...s.data,
+            primaryPhotoIndex: index,
+            isDraft: true,
+            lastSavedAt: nowIso(),
+          },
+        })),
 
       removePhoto: (index) =>
         set((s) => {
@@ -161,6 +204,37 @@ export const useSellStore = create<SellFormStore>()(
                 s.data.primaryPhotoIndex ?? 0,
                 Math.max(0, files.length - 1)
               ),
+              isDraft: true,
+              lastSavedAt: nowIso(),
+            },
+          };
+        }),
+
+      reorderPhotos: (fromIndex, toIndex) =>
+        set((s) => {
+          const files = [...(s.data.photoFiles ?? [])];
+          const urls = [...(s.data.photoUrls ?? [])];
+          const [movedFile] = files.splice(fromIndex, 1);
+          const [movedUrl] = urls.splice(fromIndex, 1);
+          files.splice(toIndex, 0, movedFile);
+          urls.splice(toIndex, 0, movedUrl);
+          const primary = s.data.primaryPhotoIndex ?? 0;
+          let newPrimary = primary;
+          if (primary === fromIndex) {
+            newPrimary = toIndex;
+          } else if (fromIndex < primary && toIndex >= primary) {
+            newPrimary = primary - 1;
+          } else if (fromIndex > primary && toIndex <= primary) {
+            newPrimary = primary + 1;
+          }
+          return {
+            data: {
+              ...s.data,
+              photoFiles: files,
+              photoUrls: urls,
+              primaryPhotoIndex: newPrimary,
+              isDraft: true,
+              lastSavedAt: nowIso(),
             },
           };
         }),

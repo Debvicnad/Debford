@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useRef, useTransition, useCallback } from "react";
 import { useSellStore, type ListingType, type VehicleTypeSlug } from "@/stores/sell.store";
+import { Loader2, Scan, CheckCircle2, AlertCircle, Zap } from "lucide-react";
 
 const MAKES = [
   "Acura", "Alfa Romeo", "Aston Martin", "Audi", "Bentley", "BMW",
@@ -19,20 +21,129 @@ const LISTING_TYPES = [
 ] as const;
 
 const VEHICLE_TYPES = [
-  { icon: "🚗", label: "Car", value: "car" },
-  { icon: "🏍️", label: "Moto", value: "motorcycle" },
-  { icon: "🚛", label: "Truck", value: "truck" },
-  { icon: "🚐", label: "Van", value: "van" },
-  { icon: "🚌", label: "Bus", value: "bus" },
-  { icon: "🚎", label: "RV", value: "rv" },
-  { icon: "🚜", label: "Heavy", value: "heavy-equipment" },
-  { icon: "⛵", label: "Boat", value: "boat" },
+  { icon: "🚗", label: "Car",       value: "car" },
+  { icon: "🏍️", label: "Moto",      value: "motorcycle" },
+  { icon: "🚛", label: "Truck",     value: "truck" },
+  { icon: "🚐", label: "Van",       value: "van" },
+  { icon: "🚌", label: "Bus",       value: "bus" },
+  { icon: "🚎", label: "RV",        value: "rv" },
+  { icon: "🚜", label: "Heavy",     value: "heavy-equipment" },
+  { icon: "⛵", label: "Boat",      value: "boat" },
 ] as const;
+
+/** Maps NHTSA result variable names to our form field names */
+const NHTSA_MAP: Record<string, string> = {
+  Make:                   "make",
+  Model:                  "model",
+  "Model Year":           "year",
+  "Body Class":           "bodyType",
+  "Fuel Type - Primary":  "fuelType",
+  "Transmission Style":   "transmission",
+  "Engine Displacement (L)": "engineSize",
+  "Drive Type":           "driveType",
+  "Number of Doors":      "doors",
+  "Engine Number of Cylinders": "engineCylinders",
+};
+
+interface DecodedField {
+  field: string;
+  label: string;
+  value: string;
+}
 
 interface Props { onNext: () => void }
 
 export function Step1VehicleInfo({ onNext }: Props) {
-  const { data, updateData, nextStep } = useSellStore();
+  const { data, updateData } = useSellStore();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const [vinInput, setVinInput] = useState(data.vin ?? "");
+  const [isDecoding, startDecoding] = useTransition();
+  const [decodedFields, setDecodedFields] = useState<DecodedField[]>([]);
+  const [decodeStatus, setDecodeStatus] = useState<"idle" | "success" | "error">("idle");
+  const [decodeError, setDecodeError] = useState("");
+  // Track which form fields were populated by the decoder so we can highlight them
+  const [decodedKeys, setDecodedKeys] = useState<Set<string>>(new Set());
+
+  const handleDecodeVin = useCallback(() => {
+    const vin = vinInput.trim().toUpperCase();
+    if (vin.length !== 17) {
+      setDecodeError("Please enter a valid 17-character VIN number.");
+      setDecodeStatus("error");
+      return;
+    }
+
+    setDecodeStatus("idle");
+    setDecodeError("");
+
+    startDecoding(async () => {
+      try {
+        const res = await fetch(
+          `https://vpic.api.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`
+        );
+        if (!res.ok) throw new Error("API unavailable");
+        const json = await res.json();
+
+        const results: Array<{ Variable: string; Value: string | null }> =
+          json.Results ?? [];
+
+        const filled: DecodedField[] = [];
+        const patch: Record<string, string> = {};
+        const keys = new Set<string>();
+
+        for (const result of results) {
+          const ourKey = NHTSA_MAP[result.Variable];
+          if (ourKey && result.Value && result.Value !== "Not Applicable" && result.Value.trim()) {
+            let val = result.Value.trim();
+            // Normalise transmission
+            if (ourKey === "transmission") {
+              val = val.toLowerCase().includes("auto") ? "Automatic" : "Manual";
+            }
+            // Normalise fuel type
+            if (ourKey === "fuelType") {
+              if (val.toLowerCase().includes("electric")) val = "Electric";
+              else if (val.toLowerCase().includes("hybrid")) val = "Hybrid";
+              else if (val.toLowerCase().includes("diesel")) val = "Diesel";
+              else val = "Petrol";
+            }
+            patch[ourKey] = val;
+            keys.add(ourKey);
+            filled.push({
+              field: ourKey,
+              label: result.Variable,
+              value: val,
+            });
+          }
+        }
+
+        if (filled.length === 0) {
+          setDecodeError("VIN decoded but no standard vehicle data was found. It may be a non-US spec or pre-1981 vehicle.");
+          setDecodeStatus("error");
+          return;
+        }
+
+        // Apply decoded data to the store and update form inputs
+        patch.vin = vin;
+        patch.vinDecoded = true as any;
+        updateData(patch as any);
+        setDecodedFields(filled);
+        setDecodedKeys(keys);
+        setDecodeStatus("success");
+
+        // Sync visible form fields in the DOM
+        if (formRef.current) {
+          const form = formRef.current;
+          for (const [key, val] of Object.entries(patch)) {
+            const el = form.elements.namedItem(key) as HTMLInputElement | HTMLSelectElement | null;
+            if (el) el.value = val;
+          }
+        }
+      } catch {
+        setDecodeError("Could not reach the VIN lookup service. Please check your internet connection.");
+        setDecodeStatus("error");
+      }
+    });
+  }, [vinInput, updateData]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,8 +166,17 @@ export function Step1VehicleInfo({ onNext }: Props) {
     onNext();
   }
 
+  function fieldClass(name: string) {
+    const base =
+      "w-full px-4 py-3 surface-base border rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none transition-colors";
+    const highlighted = decodedKeys.has(name)
+      ? "border-emerald-500/50 bg-emerald-500/5 focus:border-emerald-400"
+      : "border-white/10 focus:border-blue-500";
+    return `${base} ${highlighted}`;
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {/* Listing type */}
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-3">
@@ -106,17 +226,93 @@ export function Step1VehicleInfo({ onNext }: Props) {
         </div>
       </div>
 
+      {/* VIN with decoder */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-slate-300">
+          VIN
+          <span className="ml-2 text-xs text-slate-500">(17 characters — auto-fills make, model, specs)</span>
+        </label>
+
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              name="vin"
+              maxLength={17}
+              value={vinInput}
+              onChange={(e) => {
+                setVinInput(e.target.value.toUpperCase());
+                setDecodeStatus("idle");
+              }}
+              placeholder="e.g. 1HGBH41JXMN109186"
+              className={`${fieldClass("vin")} font-mono pr-10`}
+            />
+            {vinInput.length > 0 && (
+              <span
+                className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold ${
+                  vinInput.length === 17 ? "text-emerald-400" : "text-slate-600"
+                }`}
+              >
+                {vinInput.length}/17
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDecodeVin}
+            disabled={isDecoding || vinInput.trim().length !== 17}
+            className="px-4 py-3 rounded-xl gradient-brand text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 flex items-center gap-2 shrink-0 cursor-pointer"
+          >
+            {isDecoding ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Zap className="w-4 h-4" />
+            )}
+            <span>{isDecoding ? "Decoding…" : "Decode VIN"}</span>
+          </button>
+        </div>
+
+        {/* Decode success banner */}
+        {decodeStatus === "success" && decodedFields.length > 0 && (
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/25 rounded-xl space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>VIN decoded — {decodedFields.length} fields auto-populated below</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {decodedFields.map((f) => (
+                <span
+                  key={f.field}
+                  className="text-[10px] bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20 font-medium"
+                >
+                  {f.label}: {f.value}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Decode error */}
+        {decodeStatus === "error" && (
+          <div className="flex items-start gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{decodeError}</span>
+          </div>
+        )}
+      </div>
+
       {/* Make / Model / Year */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Make <span className="text-rose-400">*</span>
+            {decodedKeys.has("make") && <span className="ml-1.5 text-[10px] text-emerald-400 font-bold">✓ Auto-filled</span>}
           </label>
           <select
             name="make"
             required
             defaultValue={data.make ?? ""}
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition-colors bg-transparent"
+            className={`${fieldClass("make")} bg-transparent`}
           >
             <option value="">Select make…</option>
             {MAKES.map((m) => <option key={m} value={m}>{m}</option>)}
@@ -125,18 +321,20 @@ export function Step1VehicleInfo({ onNext }: Props) {
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Model <span className="text-rose-400">*</span>
+            {decodedKeys.has("model") && <span className="ml-1.5 text-[10px] text-emerald-400 font-bold">✓ Auto-filled</span>}
           </label>
           <input
             name="model"
             required
             defaultValue={data.model ?? ""}
             placeholder="e.g. Camry"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className={fieldClass("model")}
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Year <span className="text-rose-400">*</span>
+            {decodedKeys.has("year") && <span className="ml-1.5 text-[10px] text-emerald-400 font-bold">✓ Auto-filled</span>}
           </label>
           <input
             name="year"
@@ -146,35 +344,20 @@ export function Step1VehicleInfo({ onNext }: Props) {
             max={new Date().getFullYear() + 2}
             defaultValue={data.year ?? ""}
             placeholder="2023"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className={fieldClass("year")}
           />
         </div>
       </div>
 
-      {/* Variant / VIN */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Variant / Trim</label>
-          <input
-            name="variant"
-            defaultValue={data.variant ?? ""}
-            placeholder="e.g. SE 2.5L, xDrive40i"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            VIN
-            <span className="ml-2 text-xs text-slate-600">(boosts buyer trust)</span>
-          </label>
-          <input
-            name="vin"
-            maxLength={17}
-            defaultValue={data.vin ?? ""}
-            placeholder="17-character VIN"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors font-mono"
-          />
-        </div>
+      {/* Variant */}
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-2">Variant / Trim</label>
+        <input
+          name="variant"
+          defaultValue={data.variant ?? ""}
+          placeholder="e.g. SE 2.5L, xDrive40i"
+          className={fieldClass("variant")}
+        />
       </div>
 
       {/* Condition / Mileage */}
@@ -187,7 +370,7 @@ export function Step1VehicleInfo({ onNext }: Props) {
             name="condition"
             required
             defaultValue={data.condition ?? ""}
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition-colors bg-transparent"
+            className={`${fieldClass("condition")} bg-transparent`}
           >
             <option value="">Select…</option>
             <option value="new">New</option>
@@ -208,7 +391,7 @@ export function Step1VehicleInfo({ onNext }: Props) {
               min={0}
               defaultValue={data.mileage ?? ""}
               placeholder="42,000"
-              className="flex-1 px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+              className={`${fieldClass("mileage")} flex-1`}
             />
             <select
               name="mileageUnit"
@@ -230,7 +413,7 @@ export function Step1VehicleInfo({ onNext }: Props) {
             name="color"
             defaultValue={data.color ?? ""}
             placeholder="e.g. Midnight Black"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className={fieldClass("color")}
           />
         </div>
         <div>
@@ -242,12 +425,12 @@ export function Step1VehicleInfo({ onNext }: Props) {
             required
             defaultValue={data.location ?? ""}
             placeholder="e.g. New York, NY"
-            className="w-full px-4 py-3 surface-base border border-white/10 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className={fieldClass("location")}
           />
         </div>
       </div>
 
-      {/* Reg plate */}
+      {/* Registration plate */}
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-2">Registration Plate</label>
         <input
