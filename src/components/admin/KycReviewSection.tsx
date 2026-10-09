@@ -6,9 +6,7 @@ import {
   ShieldAlert,
   CreditCard,
   Building2,
-  Clock,
   CheckCircle2,
-  XCircle,
   ChevronDown,
   ChevronUp,
   X,
@@ -293,7 +291,7 @@ function KycCard({
 
 export function KycReviewSection({ initialApplications }: Props) {
   const [applications, setApplications] = useState<KycApplicationItem[]>(initialApplications);
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "verified" | "rejected">("all");
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 

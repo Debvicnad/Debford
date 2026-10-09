@@ -88,6 +88,7 @@ export function ListingModerationModal({
               <div className="space-y-3">
                 <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
                   {images.length > 0 ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={images[selectedPhotoIdx]}
                       alt={item.title}
@@ -115,6 +116,7 @@ export function ListingModerationModal({
                             : "border-white/10 opacity-60 hover:opacity-100"
                         }`}
                       >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
                     ))}

@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import {
   Car,
-  Clock,
   ShieldCheck,
-  Award,
-  Share2,
-  Heart,
   MessageSquare,
   AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
   Sparkles,
+  Gauge,
+  Zap,
+  MapPin,
+  ChevronRight,
+  CheckCircle2,
+  Gavel,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 import { LiveBiddingPanel } from "@/components/auctions/LiveBiddingPanel";
 import { getAuctionById, isSupabaseConfigured } from "@/lib/db/queries";
 
@@ -24,12 +26,12 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  if (!isSupabaseConfigured()) return { title: "Live Auction | DEBFORD" };
+  if (!isSupabaseConfigured()) return { title: "Live Auction — Debford" };
   const { auction } = await getAuctionById(id);
-  if (!auction) return { title: "Auction Not Found | DEBFORD" };
+  if (!auction) return { title: "Auction Not Found — Debford" };
   return {
-    title: `${auction.title} — Live Auction | DEBFORD`,
-    description: `Live bidding on ${auction.title}. Place your bid on DEBFORD.`,
+    title: `${auction.title} — Live Bidding Arena | Debford`,
+    description: `Bid live on ${auction.title}. Real-time transparent auction with Debford buyer protection and escrow.`,
   };
 }
 
@@ -51,12 +53,12 @@ export default async function AuctionDetailPage({
     }
   }
 
-  // Fallback demo auction if database row is not yet created for this ID
+  // Rich demo fallback
   if (!auctionData) {
     if (id === "1" || id === "a1" || id === "demo") {
       auctionData = {
         id: "demo",
-        title: "2023 Porsche 911 GT3 RS",
+        title: "2023 Porsche 911 GT3 RS — Weissach Package",
         status: "live",
         starting_price: 180000,
         current_bid: 215000,
@@ -78,23 +80,46 @@ export default async function AuctionDetailPage({
           transmission: "PDK Dual-Clutch",
           engine_capacity: 4000,
           power_hp: 518,
+          torque_nm: 465,
+          top_speed_kmh: 296,
+          sprint_0_100: 3.2,
+          drivetrain: "RWD",
           body_type: "Coupe",
           exterior_color: "Ice Grey Metallic",
-          interior_color: "Black / Guard Red Accent",
-          condition: "Used (Mint)",
+          interior_color: "Black / Guard Red Alcantara",
+          condition: "Used — Mint (1 Owner)",
           city: "Miami, FL",
+          vin: "WP0AF2A92PS223001",
           description:
-            "Flawless 2023 Porsche 911 GT3 RS finished in Ice Grey Metallic with Weissach Package, Magnesium Wheels, PCCB Ceramic Brakes, and Front Axle Lift. 1 owner from new with full PPF and complete service records.",
+            "Flawless 2023 Porsche 911 GT3 RS finished in exclusive Ice Grey Metallic with the full Weissach Package fitted from the factory. Optioned with ultra-lightweight Magnesium Wheels, PCCB Ceramic Composite Brakes, Front Axle Lift System, and full-spec Clubsport Pack. 1 meticulous owner from new, Porsche-serviced at all intervals with complete documentation. Full-front PPF professionally applied at delivery. A true racing machine for the road — these cars are appreciating rapidly.",
           images: [
-            { url: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80", is_primary: true, sort_order: 0 },
-            { url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80", is_primary: false, sort_order: 1 },
+            {
+              url: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1400&q=80",
+              is_primary: true,
+              sort_order: 0,
+            },
+            {
+              url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=80",
+              is_primary: false,
+              sort_order: 1,
+            },
+            {
+              url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=80",
+              is_primary: false,
+              sort_order: 2,
+            },
           ],
           features: [
-            { category: "Performance", feature: "Weissach Package" },
-            { category: "Performance", feature: "PCCB Ceramic Brakes" },
+            { category: "Performance", feature: "Weissach Package (Factory Fitted)" },
+            { category: "Performance", feature: "PCCB Ceramic Composite Brakes" },
             { category: "Performance", feature: "Front Axle Lift System" },
-            { category: "Interior", feature: "Carbon Fiber Full Bucket Seats" },
+            { category: "Performance", feature: "Magnesium 21\" Centerlock Wheels" },
+            { category: "Performance", feature: "Clubsport Pack (Harness, Extinguisher, Prep)" },
+            { category: "Interior", feature: "Full Carbon Fiber Bucket Seats" },
+            { category: "Interior", feature: "Alcantara Wrapped Interior Package" },
+            { category: "Exterior", feature: "Full-Front PPF (Professional Fitted)" },
             { category: "Audio", feature: "Bose Surround Sound System" },
+            { category: "Tech", feature: "Porsche Track Precision App Integration" },
           ],
         },
         seller: {
@@ -104,12 +129,39 @@ export default async function AuctionDetailPage({
           average_rating: 4.95,
           sales_count: 84,
           verification_status: "verified",
+          response_time: "< 2 hours",
+          member_since: "2019",
         },
       };
       bidsData = [
-        { id: "b1", amount: 215000, bidder_id: "user-8842", created_at: new Date(Date.now() - 3 * 60000).toISOString(), status: "active" },
-        { id: "b2", amount: 214000, bidder_id: "user-1923", created_at: new Date(Date.now() - 12 * 60000).toISOString(), status: "lost" },
-        { id: "b3", amount: 210000, bidder_id: "user-4401", created_at: new Date(Date.now() - 40 * 60000).toISOString(), status: "lost" },
+        {
+          id: "b1",
+          amount: 215000,
+          bidder_id: "user-8842",
+          created_at: new Date(Date.now() - 3 * 60000).toISOString(),
+          status: "active",
+        },
+        {
+          id: "b2",
+          amount: 214000,
+          bidder_id: "user-1923",
+          created_at: new Date(Date.now() - 12 * 60000).toISOString(),
+          status: "lost",
+        },
+        {
+          id: "b3",
+          amount: 212000,
+          bidder_id: "user-5517",
+          created_at: new Date(Date.now() - 28 * 60000).toISOString(),
+          status: "lost",
+        },
+        {
+          id: "b4",
+          amount: 210000,
+          bidder_id: "user-4401",
+          created_at: new Date(Date.now() - 40 * 60000).toISOString(),
+          status: "lost",
+        },
       ];
     } else {
       notFound();
@@ -118,9 +170,12 @@ export default async function AuctionDetailPage({
 
   const v = auctionData.vehicle ?? {};
   const seller = auctionData.seller ?? {};
-  const images: any[] = (v.images ?? []).sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const images: any[] = (v.images ?? []).sort(
+    (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  );
   const primaryImage = images.find((i) => i.is_primary)?.url ?? images[0]?.url;
   const features: any[] = v.features ?? [];
+  const isLive = auctionData.status === "live";
 
   const auctionState = {
     id: auctionData.id,
@@ -134,29 +189,64 @@ export default async function AuctionDetailPage({
     status: auctionData.status as "live" | "upcoming" | "ended",
     currentBidderId: auctionData.current_bidder_id,
     sellerId: auctionData.seller_id,
+    requiresRegistration: Boolean(auctionData.requires_registration),
+    currency: auctionData.currency ?? "USD",
   };
 
+  const fmt = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+  });
+
   return (
-    <div className="min-h-screen bg-[#0a0d14]">
-      {/* Breadcrumb */}
-      <div className="bg-[#0d121d] border-b border-white/5">
-        <div className="container-debford py-3.5 flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen" style={{ backgroundColor: "#06090e" }}>
+      <Navbar />
+
+      {/* ── Top Status Bar ── */}
+      <div
+        className="border-b"
+        style={{ backgroundColor: "rgba(13,18,31,0.95)", borderColor: "rgba(255,255,255,0.06)" }}
+      >
+        <div className="container-debford py-3 flex items-center justify-between gap-3 flex-wrap">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(148,163,184,0.5)" }}>
             <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <span>›</span>
-            <Link href="/auctions" className="hover:text-slate-300 transition-colors">Auctions</Link>
-            <span>›</span>
-            <span className="text-slate-300 truncate font-medium">{auctionData.title}</span>
+            <ChevronRight className="w-3.5 h-3.5" style={{ color: "rgba(148,163,184,0.25)" }} />
+            <Link href="/auctions" className="hover:text-slate-300 transition-colors">Live Auctions</Link>
+            <ChevronRight className="w-3.5 h-3.5" style={{ color: "rgba(148,163,184,0.25)" }} />
+            <span className="text-slate-300 font-semibold truncate max-w-xs">{auctionData.title}</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {auctionData.status === "live" ? (
-              <span className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full animate-pulse">
+          {/* Live status + bid count */}
+          <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-1.5 text-xs font-semibold"
+              style={{ color: "rgba(148,163,184,0.5)" }}
+            >
+              <TrendingUp className="w-3.5 h-3.5" style={{ color: "#6366f1" }} />
+              <span>{auctionData.bids_count ?? bidsData.length} bids placed</span>
+            </div>
+            {isLive ? (
+              <span
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold border animate-pulse"
+                style={{
+                  backgroundColor: "rgba(239,68,68,0.15)",
+                  borderColor: "rgba(239,68,68,0.35)",
+                  color: "#f87171",
+                }}
+              >
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                 LIVE AUCTION
               </span>
             ) : (
-              <span className="px-3 py-1 text-[11px] font-bold bg-white/5 text-slate-400 rounded-full capitalize">
+              <span
+                className="px-3 py-1 rounded-full text-[11px] font-bold capitalize"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.05)",
+                  color: "rgba(148,163,184,0.6)",
+                }}
+              >
                 {auctionData.status}
               </span>
             )}
@@ -165,141 +255,258 @@ export default async function AuctionDetailPage({
       </div>
 
       <div className="container-debford py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ── Left / Main Content ──────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Image display */}
-            <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-900 to-black rounded-3xl overflow-hidden border border-white/10 group shadow-2xl">
-              {primaryImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={primaryImage}
-                  alt={auctionData.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Car className="w-24 h-24 text-slate-700" />
-                </div>
-              )}
-
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex gap-2">
-                <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold bg-rose-600 text-white rounded-xl shadow-lg shadow-rose-900/40 backdrop-blur-md">
-                  🔴 LIVE
-                </span>
-                {v.condition && (
-                  <span className="px-3 py-1.5 text-xs font-semibold bg-black/60 text-slate-200 rounded-xl backdrop-blur-md border border-white/10">
-                    {v.condition}
-                  </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* ── Left — Main Content ── */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Gallery */}
+            <div className="space-y-3">
+              {/* Primary image */}
+              <div
+                className="relative aspect-[16/9] overflow-hidden rounded-3xl border shadow-2xl group"
+                style={{
+                  borderColor: "rgba(255,255,255,0.08)",
+                  boxShadow: "0 25px 80px rgba(0,0,0,0.6)",
+                }}
+              >
+                {primaryImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={primaryImage}
+                    alt={auctionData.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: "linear-gradient(135deg, #0a0f1d, #131b2e)" }}
+                  >
+                    <Car className="w-24 h-24" style={{ color: "rgba(148,163,184,0.15)" }} />
+                  </div>
                 )}
+
+                {/* Cinematic gradient overlay */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(6,9,14,0.7) 0%, transparent 40%), linear-gradient(to right, rgba(6,9,14,0.3) 0%, transparent 40%)",
+                  }}
+                />
+
+                {/* Status badges */}
+                <div className="absolute top-4 left-4 flex gap-2">
+                  {isLive && (
+                    <span
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-xl backdrop-blur-md animate-pulse"
+                      style={{
+                        backgroundColor: "rgba(239,68,68,0.85)",
+                        color: "#fff",
+                        boxShadow: "0 4px 16px rgba(239,68,68,0.4)",
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      LIVE
+                    </span>
+                  )}
+                  {v.condition && (
+                    <span
+                      className="px-3 py-1.5 text-xs font-semibold rounded-xl backdrop-blur-md border"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        borderColor: "rgba(255,255,255,0.12)",
+                        color: "#e2e8f0",
+                      }}
+                    >
+                      {v.condition}
+                    </span>
+                  )}
+                </div>
+
+                {/* Photo count */}
+                {images.length > 0 && (
+                  <div
+                    className="absolute bottom-4 right-4 text-xs font-bold backdrop-blur-md px-3 py-1.5 rounded-xl border"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.6)",
+                      borderColor: "rgba(255,255,255,0.1)",
+                      color: "#e2e8f0",
+                    }}
+                  >
+                    📷 {images.length} photos
+                  </div>
+                )}
+
+                {/* Current bid overlay */}
+                <div className="absolute bottom-4 left-4">
+                  <div
+                    className="text-[11px] font-bold uppercase tracking-wider mb-0.5"
+                    style={{ color: "rgba(255,255,255,0.6)" }}
+                  >
+                    Current High Bid
+                  </div>
+                  <div
+                    className="text-3xl font-black"
+                    style={{
+                      color: "#f8fafc",
+                      textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                    }}
+                  >
+                    {fmt.format(auctionState.currentBid)}
+                  </div>
+                </div>
               </div>
 
-              {images.length > 0 && (
-                <div className="absolute bottom-4 right-4 text-xs font-semibold text-white/90 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
-                  📷 {images.length} photos
+              {/* Thumbnail strip */}
+              {images.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                  {images.map((img, i) => (
+                    <div
+                      key={i}
+                      className="relative shrink-0 w-28 h-20 rounded-2xl overflow-hidden border cursor-pointer transition-all"
+                      style={{
+                        borderColor: i === 0 ? "rgba(99,102,241,0.6)" : "rgba(255,255,255,0.08)",
+                        boxShadow: i === 0 ? "0 0 0 2px rgba(99,102,241,0.3)" : "none",
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.url} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Thumbnail Strip */}
-            {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
-                {images.map((img, i) => (
-                  <div
-                    key={i}
-                    className="relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border border-white/10 hover:border-blue-500/60 transition-all cursor-pointer bg-slate-900"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Header info */}
+            {/* Title + quick stats */}
             <div>
-              <div className="flex items-start justify-between flex-wrap gap-4 mb-3">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+              <div className="flex items-start justify-between flex-wrap gap-4">
+                <div className="flex-1 min-w-0">
+                  <h1
+                    className="font-black tracking-tight mb-2"
+                    style={{ fontSize: "clamp(1.5rem,3vw,2rem)", color: "#f8fafc", lineHeight: 1.1 }}
+                  >
                     {auctionData.title}
                   </h1>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400 flex-wrap">
-                    {v.year && <span>{v.year}</span>}
+                  <div className="flex items-center flex-wrap gap-3 text-xs" style={{ color: "rgba(148,163,184,0.6)" }}>
+                    {v.year && <span className="font-semibold">{v.year}</span>}
                     {v.mileage && <span>• {Number(v.mileage).toLocaleString()} km</span>}
                     {v.transmission && <span>• {v.transmission}</span>}
                     {v.fuel_type && <span>• {v.fuel_type}</span>}
-                    {v.city && <span>• 📍 {v.city}</span>}
+                    {v.city && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {v.city}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/messages?seller=${seller.id || auctionData.seller_id}&listing=${auctionData.id}`}
-                    className="px-4 py-2.5 bg-[#131b2e] hover:bg-blue-600/20 border border-white/10 hover:border-blue-500/40 text-slate-200 text-xs font-semibold rounded-xl flex items-center gap-2 transition-all"
-                  >
-                    <MessageSquare className="w-4 h-4 text-blue-400" />
-                    <span>Ask Seller</span>
-                  </Link>
-                </div>
+                <Link
+                  href={`/messages?seller=${seller.id || auctionData.seller_id}&listing=${auctionData.id}`}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all shrink-0"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.04)",
+                    borderColor: "rgba(255,255,255,0.1)",
+                    color: "#94a3b8",
+                  }}
+                >
+                  <MessageSquare className="w-4 h-4 text-blue-400" />
+                  Ask Seller
+                </Link>
               </div>
             </div>
 
-            {/* Mobile Bidding Panel */}
+            {/* Mobile bidding panel */}
             <div className="lg:hidden">
               <LiveBiddingPanel auction={auctionState} initialBids={bidsData} />
             </div>
 
-            {/* Vehicle Specifications */}
-            <div className="bg-[#0d121d] rounded-3xl border border-white/5 p-6 space-y-4 shadow-sm">
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Car className="w-4 h-4 text-blue-400" />
-                <span>Vehicle Specifications</span>
+            {/* Telemetry Matrix */}
+            <div
+              className="rounded-3xl border p-6 space-y-5"
+              style={{
+                background: "linear-gradient(135deg, rgba(13,18,31,0.95), rgba(10,15,26,0.95))",
+                borderColor: "rgba(255,255,255,0.07)",
+              }}
+            >
+              <h2
+                className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2"
+                style={{ color: "#f8fafc" }}
+              >
+                <Gauge className="w-4 h-4" style={{ color: "#6366f1" }} />
+                Engineering Telemetry
               </h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {[
-                  { label: "Make", value: v.make_name },
-                  { label: "Model", value: v.model_name },
-                  { label: "Year", value: v.year },
-                  { label: "Mileage", value: v.mileage ? `${Number(v.mileage).toLocaleString()} km` : null },
-                  { label: "Transmission", value: v.transmission },
-                  { label: "Fuel Type", value: v.fuel_type },
-                  { label: "Engine", value: v.engine_capacity ? `${v.engine_capacity} cc` : null },
-                  { label: "Horsepower", value: v.power_hp ? `${v.power_hp} hp` : null },
-                  { label: "Exterior Color", value: v.exterior_color },
-                  { label: "Interior Color", value: v.interior_color },
-                  { label: "Location", value: v.city },
-                  { label: "Condition", value: v.condition },
+                  { label: "Make", value: v.make_name, icon: "🏭" },
+                  { label: "Model", value: v.model_name, icon: "🚗" },
+                  { label: "Year", value: v.year, icon: "📅" },
+                  { label: "Mileage", value: v.mileage ? `${Number(v.mileage).toLocaleString()} km` : null, icon: "📊" },
+                  { label: "Transmission", value: v.transmission, icon: "⚙️" },
+                  { label: "Fuel Type", value: v.fuel_type, icon: "⛽" },
+                  { label: "Engine", value: v.engine_capacity ? `${v.engine_capacity} cc` : null, icon: "🔧" },
+                  { label: "Power", value: v.power_hp ? `${v.power_hp} HP` : null, icon: "⚡" },
+                  { label: "Torque", value: v.torque_nm ? `${v.torque_nm} Nm` : null, icon: "🌀" },
+                  { label: "0–100 km/h", value: v.sprint_0_100 ? `${v.sprint_0_100}s` : null, icon: "🏁" },
+                  { label: "Top Speed", value: v.top_speed_kmh ? `${v.top_speed_kmh} km/h` : null, icon: "🚀" },
+                  { label: "Drivetrain", value: v.drivetrain, icon: "🔩" },
+                  { label: "Exterior", value: v.exterior_color, icon: "🎨" },
+                  { label: "Interior", value: v.interior_color, icon: "🪑" },
+                  { label: "Location", value: v.city, icon: "📍" },
+                  { label: "VIN", value: v.vin, icon: "🔍" },
                 ]
                   .filter((s) => Boolean(s.value))
                   .map((spec) => (
                     <div
                       key={spec.label}
-                      className="p-3.5 bg-[#131b2e]/60 rounded-2xl border border-white/5"
+                      className="p-3.5 rounded-2xl border"
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.03)",
+                        borderColor: "rgba(255,255,255,0.07)",
+                      }}
                     >
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">{spec.label}</div>
+                      <div
+                        className="text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1"
+                        style={{ color: "rgba(148,163,184,0.45)" }}
+                      >
+                        <span>{spec.icon}</span>
+                        <span>{spec.label}</span>
+                      </div>
                       <div className="text-sm font-bold text-white truncate">{spec.value}</div>
                     </div>
                   ))}
               </div>
             </div>
 
-            {/* Features & Options */}
+            {/* Factory Options & Features */}
             {features.length > 0 && (
-              <div className="bg-[#0d121d] rounded-3xl border border-white/5 p-6 space-y-4 shadow-sm">
-                <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>Installed Features & Equipment</span>
+              <div
+                className="rounded-3xl border p-6 space-y-5"
+                style={{
+                  background: "linear-gradient(135deg, rgba(13,18,31,0.95), rgba(10,15,26,0.95))",
+                  borderColor: "rgba(255,255,255,0.07)",
+                }}
+              >
+                <h2
+                  className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2"
+                  style={{ color: "#f8fafc" }}
+                >
+                  <Sparkles className="w-4 h-4" style={{ color: "#f59e0b" }} />
+                  Factory Options &amp; Installed Equipment
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {features.map((f: any, idx: number) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-slate-200"
+                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-xs font-semibold"
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.025)",
+                        borderColor: "rgba(255,255,255,0.06)",
+                        color: "#cbd5e1",
+                      }}
                     >
-                      <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: "#34d399" }} />
                       <span>{f.feature ?? f}</span>
                     </div>
                   ))}
@@ -309,77 +516,136 @@ export default async function AuctionDetailPage({
 
             {/* Description */}
             {v.description && (
-              <div className="bg-[#0d121d] rounded-3xl border border-white/5 p-6 space-y-3 shadow-sm">
-                <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Vehicle Overview & Details
+              <div
+                className="rounded-3xl border p-6 space-y-3"
+                style={{
+                  background: "linear-gradient(135deg, rgba(13,18,31,0.95), rgba(10,15,26,0.95))",
+                  borderColor: "rgba(255,255,255,0.07)",
+                }}
+              >
+                <h2
+                  className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2"
+                  style={{ color: "#f8fafc" }}
+                >
+                  <Car className="w-4 h-4" style={{ color: "#38bdf8" }} />
+                  Vehicle Overview
                 </h2>
-                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(203,213,225,0.75)" }}>
                   {v.description}
                 </p>
               </div>
             )}
 
-            {/* Seller info card */}
-            <div className="bg-[#0d121d] rounded-3xl border border-white/5 p-6 shadow-sm">
-              <div className="flex items-center justify-between flex-wrap gap-4">
+            {/* Seller Card */}
+            <div
+              className="rounded-3xl border p-6"
+              style={{
+                background: "linear-gradient(135deg, rgba(13,18,31,0.95), rgba(10,15,26,0.95))",
+                borderColor: "rgba(255,255,255,0.07)",
+              }}
+            >
+              <div className="flex items-start justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 gradient-brand rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                    {seller.full_name?.charAt(0).toUpperCase() ?? "S"}
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0"
+                    style={{
+                      background: "linear-gradient(135deg, #6366f1, #3b82f6)",
+                      boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+                    }}
+                  >
+                    {seller.full_name?.charAt(0)?.toUpperCase() ?? "S"}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-white">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-base font-black text-white">
                         {seller.full_name ?? "Verified Seller"}
                       </span>
                       {seller.verification_status === "verified" && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border"
+                          style={{
+                            backgroundColor: "rgba(16,185,129,0.1)",
+                            borderColor: "rgba(16,185,129,0.25)",
+                            color: "#34d399",
+                          }}
+                        >
                           <ShieldCheck className="w-3 h-3" />
-                          Verified
+                          Verified Dealer
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                      <span className="text-amber-400">★ {seller.average_rating ?? "5.0"}</span>
-                      <span>• {seller.sales_count ?? 12} successful transactions</span>
+                    <div className="flex items-center gap-3 text-xs mt-1" style={{ color: "rgba(148,163,184,0.6)" }}>
+                      <span className="text-amber-400 font-bold">★ {seller.average_rating ?? "5.0"}</span>
+                      <span>• {seller.sales_count ?? 12} transactions</span>
+                      {seller.member_since && <span>• Member since {seller.member_since}</span>}
                     </div>
                   </div>
                 </div>
 
                 <Link
                   href={`/messages?seller=${seller.id || auctionData.seller_id}&listing=${auctionData.id}`}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-600/20"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #6366f1, #3b82f6)",
+                    color: "#fff",
+                    boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+                  }}
                 >
+                  <MessageSquare className="w-4 h-4" />
                   Send Inquiry
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
 
             {/* Auction Terms */}
-            <div className="bg-[#0d121d] rounded-3xl border border-amber-500/20 p-6 space-y-3">
-              <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <div
+              className="rounded-3xl border p-6 space-y-4"
+              style={{
+                backgroundColor: "rgba(245,158,11,0.04)",
+                borderColor: "rgba(245,158,11,0.2)",
+              }}
+            >
+              <div
+                className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider"
+                style={{ color: "#fbbf24" }}
+              >
                 <AlertTriangle className="w-4 h-4" />
-                <span>Debford Auction Terms & Buyer Protection</span>
+                Debford Auction Terms &amp; Buyer Protection
               </div>
-              <ul className="space-y-2 text-xs text-slate-400 leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 shrink-0">•</span>
-                  <span><strong>Binding Bids:</strong> All bids placed on DEBFORD auctions are legally binding. Winning bidders have 48 hours to complete vehicle payment.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 shrink-0">•</span>
-                  <span><strong>Anti-Sniping Protection:</strong> Any bid placed within the final 2 minutes will automatically extend the auction clock by 2 minutes.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 shrink-0">•</span>
-                  <span><strong>Escrow & Inspection:</strong> Funds are held securely in escrow until vehicle pickup and verified condition sign-off.</span>
-                </li>
+              <ul className="space-y-3">
+                {[
+                  {
+                    title: "Binding Bids",
+                    desc: "All bids placed on Debford are legally binding. Winning bidders have 48 hours to complete vehicle payment.",
+                  },
+                  {
+                    title: "Anti-Sniping Protection",
+                    desc: "Any bid placed within the final 2 minutes automatically extends the auction clock by 2 minutes.",
+                  },
+                  {
+                    title: "Escrow & Inspection",
+                    desc: "Funds are held securely in escrow until vehicle pickup and condition sign-off by both parties.",
+                  },
+                  {
+                    title: "Reserve Price",
+                    desc: "The seller has set a reserve — the vehicle will only be sold if bidding surpasses the undisclosed reserve before the clock expires.",
+                  },
+                ].map((term) => (
+                  <li key={term.title} className="flex items-start gap-2.5 text-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                    <span style={{ color: "rgba(203,213,225,0.7)" }}>
+                      <strong className="text-white">{term.title}:</strong> {term.desc}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
-          {/* ── Right / Sticky Bidding Panel ───────────────────────── */}
-          <div className="hidden lg:block">
-            <div className="sticky top-20">
+          {/* ── Right — Sticky Bid Panel ── */}
+          <div className="hidden lg:block lg:col-span-4">
+            <div className="sticky top-24">
               <LiveBiddingPanel auction={auctionState} initialBids={bidsData} />
             </div>
           </div>

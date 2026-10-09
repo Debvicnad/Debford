@@ -9,15 +9,17 @@ import {
   Sparkles,
   ShieldCheck,
   Crown,
-  Zap,
   Building2,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   ArrowRight,
-  TrendingUp,
+  Zap,
   Award,
+  Lock,
+  Car,
+  ChevronRight,
 } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 import {
   switchMembershipPlan,
   cancelMembershipSubscription,
@@ -261,38 +263,55 @@ export function MembershipClient({ initialMembership, isAuthenticated }: Props) 
   }
 
   return (
-    <div className="min-h-screen surface-base">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden surface-raised border-b border-subtle pt-12 pb-14">
-        <div className="absolute inset-0 gradient-hero opacity-75" />
-        <div className="absolute top-0 right-1/4 w-[600px] h-[300px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#06090e] text-slate-100 selection:bg-blue-600 selection:text-white pb-24">
+      {/* Navigation */}
+      <Navbar userEmail={membership?.email ?? undefined} />
 
-        <div className="container-debford relative z-10 text-center max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-6 justify-center">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <span>›</span>
-            <span className="text-slate-300">Membership & Dealer Plans</span>
-          </div>
+      {/* ── CINEMATIC MEMBERSHIP HEADER ───────────────────── */}
+      <div className="relative pt-28 pb-12 overflow-hidden border-b border-white/8 bg-[#080d16]">
+        {/* Ambient Glows */}
+        <div className="absolute top-0 right-1/4 w-[600px] h-[320px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/2 left-0 w-[450px] h-[280px] bg-indigo-600/8 rounded-full blur-[120px] pointer-events-none" />
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-4">
+        {/* Scanline Grid */}
+        <div
+          className="absolute inset-0 opacity-[0.025] pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)`,
+            backgroundSize: "64px 64px",
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <nav className="flex items-center gap-2 text-xs font-mono text-slate-400 mb-6 tracking-wide justify-center">
+            <Link href="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-blue-400 font-semibold">Membership & Dealer Tiers</span>
+          </nav>
+
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono tracking-wider uppercase mb-3">
             <Crown className="w-3.5 h-3.5" />
-            <span>Powering Over 12,000+ Verified Sellers & Automotive Dealerships</span>
+            <span>Powering 14,800+ Verified Private Collectors & Dealerships</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-4">
-            Scale Your Automotive Business
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4">
+            Collector & Dealer VIP Membership
           </h1>
-          <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-8">
-            Choose the Debford tier engineered for your ambitions. From verified private sellers to high-volume multi-rooftop dealerships.
+          <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
+            Engineered for high-liquidity vehicle transactions. Scale from private collector garage management
+            to multi-rooftop dealer fleet syndication with escrow fee waivers.
           </p>
 
           {/* Billing Cycle Switcher */}
-          <div className="inline-flex items-center gap-2 p-1.5 glass rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl">
+          <div className="inline-flex items-center gap-2 p-1.5 rounded-2xl bg-[#0d121d] border border-white/10 shadow-2xl backdrop-blur-xl">
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 billingCycle === "monthly"
-                  ? "gradient-brand text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -300,9 +319,9 @@ export function MembershipClient({ initialMembership, isAuthenticated }: Props) 
             </button>
             <button
               onClick={() => setBillingCycle("annual")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 billingCycle === "annual"
-                  ? "gradient-brand text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -315,23 +334,70 @@ export function MembershipClient({ initialMembership, isAuthenticated }: Props) 
 
           {/* User Current Tier Status Bar */}
           {isAuthenticated && membership && (
-            <div className="mt-6 inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#131b2e] border border-white/10 text-xs text-slate-300">
+            <div className="mt-6 inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#0d121d] border border-white/10 text-xs text-slate-300">
               <span>Current Active Plan:</span>
               <span className="font-extrabold text-blue-400 uppercase tracking-wider">
                 {membership.tier} tier
               </span>
               {membership.subscriptionExpiresAt && (
-                <span className="text-slate-500">
+                <span className="text-slate-500 font-mono">
                   (Renews: {new Date(membership.subscriptionExpiresAt).toLocaleDateString()})
                 </span>
               )}
             </div>
           )}
+
+          {/* ── MEMBERSHIP TELEMETRY RIBBON ──────────────────── */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-10 pt-6 border-t border-white/8 text-left">
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/6">
+              <div className="flex items-center gap-2 text-blue-400 mb-1">
+                <Crown className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Active Members
+                </span>
+              </div>
+              <div className="text-xl font-bold text-white">14,800+</div>
+              <p className="text-[11px] text-slate-400 mt-0.5">Verified global enthusiasts</p>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/6">
+              <div className="flex items-center gap-2 text-emerald-400 mb-1">
+                <ShieldCheck className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Escrow Waiver
+                </span>
+              </div>
+              <div className="text-xl font-bold text-white">$0 Fees on Pro</div>
+              <p className="text-[11px] text-slate-400 mt-0.5">100% savings on transaction fee</p>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/6">
+              <div className="flex items-center gap-2 text-amber-400 mb-1">
+                <Zap className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Listing Boost
+                </span>
+              </div>
+              <div className="text-xl font-bold text-white">10× Reach</div>
+              <p className="text-[11px] text-slate-400 mt-0.5">Algorithmic showcase priority</p>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/6">
+              <div className="flex items-center gap-2 text-indigo-400 mb-1">
+                <Award className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Guild Accreditation
+                </span>
+              </div>
+              <div className="text-xl font-bold text-white">Gold Badge</div>
+              <p className="text-[11px] text-slate-400 mt-0.5">Verified Dealer trust badge</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="container-debford py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Success / Error Alerts */}
         {actionSuccess && (
           <div className="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl flex items-center justify-between gap-3 text-emerald-300 text-sm">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   ShieldCheck,
   Mail,
@@ -11,12 +10,9 @@ import {
   Building2,
   CheckCircle2,
   Clock,
-  AlertCircle,
   X,
-  ChevronRight,
   Lock,
   Sparkles,
-  ArrowRight,
 } from "lucide-react";
 import {
   VerificationData,
@@ -71,7 +67,6 @@ export function VerificationClient({ initialData }: Props) {
   const isIdVerified = data.verification_status === "verified";
   const isIdPending = data.verification_status === "pending";
   const hasAddress = Boolean(data.city && data.country);
-  const isDealer = data.role === "dealer" || data.role === "admin";
 
   const totalSteps = 4;
   let completedSteps = 0;

@@ -799,7 +799,7 @@ export async function addVehicleServiceRecord(
         vehicle_id: payload.vehicleId,
         owner_id: user.id,
         document_type: "service_record",
-        title: `${payload.title} (${payload.serviceDate})`,
+        title: `${payload.title} (${payload.serviceDate})${formattedNotes ? ` - ${formattedNotes}` : ""}`,
         storage_path: `service-records/${payload.vehicleId}/${Date.now()}`,
         url: "#",
         expiry_date: payload.serviceDate || null,

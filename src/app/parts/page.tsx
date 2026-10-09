@@ -1,78 +1,197 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PartsClient } from "@/components/parts/PartsClient";
-import { ShieldCheck, Truck, RotateCcw, Wrench, ChevronRight } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
+import {
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  ChevronRight,
+  Package,
+  Zap,
+  Award,
+} from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Auto Parts Marketplace & OEM Spares — Debford",
-  description: "Shop genuine, OEM, and aftermarket auto parts with 100% vehicle fitment guarantee, fast shipping, and verified seller protection on Debford.",
+  title: "OEM & Performance Parts Marketplace — Debford",
+  description:
+    "Shop genuine OEM, performance, and aftermarket auto parts with 100% vehicle fitment guarantee, fast express shipping, and verified seller protection on Debford.",
 };
+
+const TELEMETRY = [
+  { label: "Parts In Stock", value: "12,400+", icon: Package, color: "text-blue-400" },
+  { label: "Verified Sellers", value: "340+", icon: Award, color: "text-purple-400" },
+  { label: "Fitment Guarantee", value: "100%", icon: ShieldCheck, color: "text-emerald-400" },
+  { label: "Express Dispatch", value: "24h", icon: Zap, color: "text-amber-400" },
+];
 
 export default function PartsPage() {
   return (
-    <div className="min-h-screen surface-base">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden surface-raised border-b border-subtle pt-10 pb-12">
-        <div className="absolute inset-0 gradient-hero opacity-75" />
-        <div className="absolute top-0 right-1/4 w-[500px] h-[300px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen" style={{ backgroundColor: "#06090e" }}>
+      <Navbar />
 
-        <div className="container-debford relative z-10">
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+      {/* Cinematic Hero Header */}
+      <div className="relative overflow-hidden border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        {/* Ambient background layers */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, #06090e 0%, #0a0f1d 50%, #06090e 100%)",
+          }}
+        />
+        <div
+          className="absolute top-0 right-0 w-[700px] h-[500px] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at top right, rgba(99,102,241,0.08) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-[500px] h-[300px] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at bottom left, rgba(16,185,129,0.05) 0%, transparent 70%)",
+          }}
+        />
+        {/* Fine scan-line grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
+          }}
+        />
+
+        <div className="container-debford relative z-10 pt-12 pb-10">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm mb-6" style={{ color: "rgba(148,163,184,0.6)" }}>
             <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className="text-slate-300">Parts Marketplace</span>
+            <ChevronRight className="w-4 h-4" style={{ color: "rgba(148,163,184,0.3)" }} />
+            <span className="text-slate-300 font-semibold">Parts Marketplace</span>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
+              {/* System badge */}
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold mb-4 border"
+                style={{
+                  backgroundColor: "rgba(99,102,241,0.1)",
+                  borderColor: "rgba(99,102,241,0.25)",
+                  color: "#a5b4fc",
+                }}
+              >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>100% Guaranteed Fitment or Your Money Back</span>
+                <span>OEM · Performance · Aftermarket · Pre-Owned Spares</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-3">
-                Auto Parts & Performance
+
+              <h1
+                className="font-black tracking-tight mb-4"
+                style={{ fontSize: "clamp(2rem,5vw,3.25rem)", color: "#f8fafc", lineHeight: 1.05 }}
+              >
+                Parts &amp;{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #818cf8 0%, #38bdf8 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  Components
+                </span>{" "}
+                Vault
               </h1>
-              <p className="text-slate-400 text-base sm:text-lg">
-                Discover OEM genuine replacements, performance upgrades, and tested pre-owned spares from certified merchants worldwide.
+
+              <p className="text-base leading-relaxed" style={{ color: "rgba(148,163,184,0.8)" }}>
+                Source genuine OEM replacements, high-performance upgrades, and rigorously tested pre-owned
+                components from our global network of certified merchants — with guaranteed direct-fit or
+                your money back.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Link
                 href="/cart"
-                className="px-5 py-3 glass border border-white/15 text-slate-200 text-xs font-bold rounded-xl hover:border-white/30 hover:text-white transition-all flex items-center gap-2 shadow-lg"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold border transition-all"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.04)",
+                  borderColor: "rgba(255,255,255,0.12)",
+                  color: "#cbd5e1",
+                }}
               >
-                <span>View My Cart</span>
-                <ChevronRight className="w-4 h-4" />
+                <Package className="w-4 h-4" />
+                <span>My Cart</span>
               </Link>
               <Link
                 href="/services/request"
-                className="px-5 py-3 gradient-brand text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-lg shadow-blue-500/25 transition-all"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, #6366f1, #3b82f6)",
+                  color: "#fff",
+                  boxShadow: "0 8px 32px rgba(99,102,241,0.3)",
+                }}
               >
-                Request Hard-to-Find Part
+                <span>Request Hard-to-Find Part →</span>
               </Link>
             </div>
           </div>
 
-          {/* Quick Perks Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 pt-6 border-t border-white/10 text-xs text-slate-300">
-            <div className="flex items-center gap-2.5">
-              <Truck className="w-4 h-4 text-blue-400 shrink-0" />
-              <span>Free Express Delivery on orders over $150</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Guaranteed Direct-Fit or Free Return</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <RotateCcw className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>30-Day Hassle-Free Replacement Policy</span>
-            </div>
+          {/* Telemetry ribbon */}
+          <div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-10 pt-8 border-t"
+            style={{ borderColor: "rgba(255,255,255,0.06)" }}
+          >
+            {TELEMETRY.map((t) => {
+              const Icon = t.icon;
+              return (
+                <div
+                  key={t.label}
+                  className="flex items-center gap-3 p-4 rounded-2xl border"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.03)",
+                    borderColor: "rgba(255,255,255,0.07)",
+                  }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                  >
+                    <Icon className={`w-4 h-4 ${t.color}`} />
+                  </div>
+                  <div>
+                    <div className="text-lg font-black text-white">{t.value}</div>
+                    <div className="text-[11px] font-semibold" style={{ color: "rgba(148,163,184,0.6)" }}>
+                      {t.label}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Trust perks strip */}
+          <div className="flex flex-wrap gap-4 mt-6">
+            {[
+              { icon: Truck, label: "Free Express Delivery on orders over $150", color: "text-blue-400" },
+              { icon: ShieldCheck, label: "Guaranteed Direct-Fit or Free Return", color: "text-emerald-400" },
+              { icon: RotateCcw, label: "30-Day Hassle-Free Replacement Policy", color: "text-purple-400" },
+            ].map((perk) => {
+              const Icon = perk.icon;
+              return (
+                <div key={perk.label} className="flex items-center gap-2 text-xs" style={{ color: "rgba(148,163,184,0.7)" }}>
+                  <Icon className={`w-4 h-4 ${perk.color} shrink-0`} />
+                  <span>{perk.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Main Catalog View */}
+      {/* Main Catalog */}
       <div className="container-debford py-10">
         <PartsClient />
       </div>

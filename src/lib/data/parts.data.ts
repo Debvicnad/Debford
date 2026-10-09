@@ -10,11 +10,21 @@ export interface PartItem {
   compatibleModels: string[];
   seller: string;
   sellerRating?: number;
+  sellerSales?: number;
   stock: number;
   image: string;
+  images?: string[];
   description?: string;
   oemCrossReference?: string[];
   warranty?: string;
+  // Extended telemetry fields
+  weightGrams?: number;
+  material?: string;
+  countryOfOrigin?: string;
+  installTimeMinutes?: number;
+  specialToolsRequired?: string[];
+  relatedPartIds?: string[];
+  notes?: string;
 }
 
 export const ALL_PARTS: PartItem[] = [
@@ -30,11 +40,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Toyota Camry", "Toyota RAV4", "Toyota Corolla", "Lexus ES350"],
     seller: "AutoPartsExpress",
     sellerRating: 4.9,
+    sellerSales: 2140,
     stock: 24,
     image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=600&q=80",
-    description: "Original equipment specification direct-fit heated oxygen sensor with stainless steel housing and laser-welded body.",
+    description: "Original equipment specification direct-fit heated oxygen sensor with stainless steel housing and laser-welded body. The pre-calibrated zirconia element ensures immediate ECU feedback for precise air/fuel ratio control, reducing cold-start emissions and improving fuel economy.",
     warranty: "2-Year Manufacturer Warranty",
     oemCrossReference: ["89467-06240", "89467-33220", "89467-0E220"],
+    weightGrams: 195,
+    material: "Stainless Steel Housing / Zirconia Ceramic Element",
+    countryOfOrigin: "Germany",
+    installTimeMinutes: 30,
+    specialToolsRequired: ["22mm O2 Sensor Socket", "Anti-seize Compound"],
+    relatedPartIds: ["p5"],
+    notes: "Always apply anti-seize compound to sensor threads. Do not bend or kink the wiring harness.",
   },
   {
     id: "p2",
@@ -48,11 +66,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["BMW 3 Series", "BMW 4 Series", "BMW M340i", "BMW M440i", "BMW M3"],
     seller: "MunichMotors USA",
     sellerRating: 5.0,
+    sellerSales: 876,
     stock: 12,
     image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80",
-    description: "Genuine OEM BMW performance front brake pad set for high-temperature fade resistance and low dust generation.",
+    description: "Genuine OEM BMW M Performance front brake pad set engineered for high-temperature fade resistance and ultra-low brake dust. The compound uses a metallic matrix for consistent bite from cold, with integrated wear indicators and anti-squeal shims included in the kit.",
     warranty: "1-Year BMW Genuine Warranty",
     oemCrossReference: ["34116794915", "34-11-6-794-915"],
+    weightGrams: 920,
+    material: "Semi-metallic Carbon Composite",
+    countryOfOrigin: "Germany",
+    installTimeMinutes: 90,
+    specialToolsRequired: ["Brake Piston Compression Tool", "Torque Wrench", "Brake Caliper Wind-back Tool"],
+    relatedPartIds: ["p7"],
+    notes: "Bed-in procedure required: 8–10 moderate stops from 50 km/h before full-performance use. Replace rotors if worn below minimum thickness.",
   },
   {
     id: "p3",
@@ -66,11 +92,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Honda Accord", "Honda Civic", "Acura TLX", "Acura Integra"],
     seller: "PerformanceParts Co.",
     sellerRating: 4.8,
+    sellerSales: 3210,
     stock: 35,
     image: "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=600&q=80",
-    description: "Engineered to increase airflow by up to 50% for improved throttle response and horsepower gains. Washable and reusable.",
+    description: "Engineered to increase airflow by up to 50% for improved throttle response and measurable horsepower gains. The pleated cotton gauze filtration media captures particles down to 10 microns without restricting airflow. Washable and reusable for lifetime service — simply use K&N Refresher Kit every 50,000 miles.",
     warranty: "10-Year / Million Mile Warranty",
     oemCrossReference: ["17220-6B2-A00", "17220-5AA-A00"],
+    weightGrams: 340,
+    material: "Pleated Cotton Gauze / Pliable Rubber Base",
+    countryOfOrigin: "USA",
+    installTimeMinutes: 20,
+    specialToolsRequired: ["Flat-head Screwdriver", "Socket Set"],
+    relatedPartIds: ["p1", "p5"],
+    notes: "Do not oil filter with excessive amounts — over-oiling can foul MAF sensors. Re-oil only after cleaning.",
   },
   {
     id: "p4",
@@ -84,11 +118,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Tesla Model 3", "Tesla Model Y"],
     seller: "EVPartsHub",
     sellerRating: 4.9,
+    sellerSales: 1540,
     stock: 18,
     image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=600&q=80",
-    description: "OEM satin black door handle with integrated spring release mechanism and wiring pigtail.",
+    description: "OEM satin black exterior door handle assembly with integrated capacitive-touch sensor, spring-release deployment mechanism, and pre-terminated wiring pigtail. Full assembly — no individual component sourcing required. Matches factory finish on all painted panels.",
     warranty: "1-Year Warranty",
     oemCrossReference: ["1047802-00-C", "1047802-00-D"],
+    weightGrams: 280,
+    material: "Reinforced ABS / Satin Black Painted Finish",
+    countryOfOrigin: "USA",
+    installTimeMinutes: 45,
+    specialToolsRequired: ["T20 Torx Driver", "Panel Removal Pry Tool"],
+    relatedPartIds: [],
+    notes: "Run door handle calibration via Tesla Service Mode after installation on post-2021 vehicles.",
   },
   {
     id: "p5",
@@ -102,11 +144,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Ford Focus", "Ford Escape", "Ford Fusion", "Lincoln MKZ"],
     seller: "AutoPartsExpress",
     sellerRating: 4.9,
+    sellerSales: 1870,
     stock: 14,
     image: "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80",
-    description: "Space-saving high-energy ignition coils designed to OE specs to eliminate misfires and maximize combustion efficiency.",
+    description: "High-energy coil-on-plug ignition coils engineered to OEM specs using copper-core winding and epoxy resin potting for vibration resistance. Each coil delivers a consistent 40kV spark with zero misfires across the RPM range. Sold as a set of 4 — replace all simultaneously for optimal ignition balance.",
     warranty: "3-Year Limited Warranty",
     oemCrossReference: ["DG-546", "CM5Z-12029-A", "CM5E-12A375-AA"],
+    weightGrams: 560,
+    material: "Epoxy-potted Copper Winding / Laminated Steel Core",
+    countryOfOrigin: "Japan",
+    installTimeMinutes: 25,
+    specialToolsRequired: ["7mm Socket", "Spark Plug Boot Puller"],
+    relatedPartIds: ["p1"],
+    notes: "Inspect spark plugs during installation — replace if electrodes show wear beyond 0.8mm gap.",
   },
   {
     id: "p6",
@@ -120,11 +170,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Ford F-150", "Ford Expedition", "Lincoln Navigator"],
     seller: "RebuiltPro Remanufacturing",
     sellerRating: 4.7,
+    sellerSales: 645,
     stock: 6,
     image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80",
-    description: "100% computer load-tested alternator with upgraded heavy-duty bearings, diode rectifiers, and brushes.",
+    description: "Professionally remanufactured 175A alternator for high-demand Ford applications. Each unit is computer load-tested at 100% rated amperage, rebuilt with upgraded heavy-duty bearings, fresh diode rectifiers, new carbon brushes, and cleaned/resurfaced rotor. Core exchange required at checkout.",
     warranty: "1-Year Exchange Warranty",
     oemCrossReference: ["GL-8812", "FL3Z-10346-B"],
+    weightGrams: 4800,
+    material: "Remanufactured OEM Housing / Upgraded Copper Windings",
+    countryOfOrigin: "USA",
+    installTimeMinutes: 75,
+    specialToolsRequired: ["Serpentine Belt Tool", "Socket Set", "Torque Wrench"],
+    relatedPartIds: [],
+    notes: "Core deposit of $45 applies — refunded upon return of old alternator. Cycle ignition 3× after installation to initialize PCM learning.",
   },
   {
     id: "p7",
@@ -138,11 +196,19 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Porsche 911", "Porsche Cayman", "Porsche Boxster"],
     seller: "StuttgartParts Pro",
     sellerRating: 5.0,
+    sellerSales: 312,
     stock: 8,
     image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80",
-    description: "Monotube gas-pressure suspension technology for precise sports handling without sacrificing ride comfort.",
+    description: "Bilstein B6 monotube gas-pressure shock absorber using their patented high-pressure nitrogen gas chamber technology. The velocity-sensitive valving delivers precise damping force modulation — firmer under sport driving loads, compliant over urban surfaces. A true OEM-spec upgrade that Porsche engineers recommend as factory equipment on RS variants.",
     warranty: "Limited Lifetime Warranty",
     oemCrossReference: ["997-343-041-00", "99734304100"],
+    weightGrams: 2100,
+    material: "High-strength Steel Monotube / Anodized Aluminium Piston",
+    countryOfOrigin: "Germany",
+    installTimeMinutes: 120,
+    specialToolsRequired: ["Spring Compressor", "Strut Nut Socket", "Alignment Required After"],
+    relatedPartIds: ["p2"],
+    notes: "Wheel alignment mandatory after installation. Bilstein recommends replacing in axle pairs for balanced handling dynamics.",
   },
   {
     id: "p8",
@@ -156,10 +222,18 @@ export const ALL_PARTS: PartItem[] = [
     compatibleModels: ["Toyota Camry", "Honda Civic", "Ford F-150", "Subaru WRX", "Nissan Altima"],
     seller: "LightingPros",
     sellerRating: 4.8,
+    sellerSales: 4920,
     stock: 45,
     image: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80",
-    description: "Up to 250% brighter light output with crisp 5800K white beam and integrated AirBoost thermal management.",
+    description: "Philips Ultinon Pro9000 delivers up to 250% brighter light output versus standard halogen bulbs with a crisp 5800K white beam. Integrated AirBoost fan cooling maintains optimal chip temperature for 6,000+ hour lamp life. Plug-and-play H11 fitment — no relay or resistor required on most vehicles. CANbus compatible with error-free operation.",
     warranty: "5-Year Philips Warranty",
     oemCrossReference: ["12362", "H11-LED-58K"],
+    weightGrams: 85,
+    material: "Aluminium Heatsink / OSRAM LED Chip Array",
+    countryOfOrigin: "Netherlands",
+    installTimeMinutes: 15,
+    specialToolsRequired: [],
+    relatedPartIds: [],
+    notes: "Some vehicles may require CANbus error suppressor if dashboard warning light appears. Sold as a pair.",
   },
 ];

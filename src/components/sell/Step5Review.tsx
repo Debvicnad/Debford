@@ -7,6 +7,16 @@ import { createListing, getPhotoUploadUrl, saveVehicleImages } from "@/lib/actio
 
 interface Props { onBack: () => void }
 
+function ReviewRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start justify-between py-2 border-b border-white/5 last:border-0">
+      <span className="text-xs text-slate-500 shrink-0 w-36">{label}</span>
+      <span className="text-sm text-white text-right">{value}</span>
+    </div>
+  );
+}
+
 export function Step5Review({ onBack }: Props) {
   const { data, reset } = useSellStore();
   const [isPending, startTransition] = useTransition();
@@ -140,16 +150,6 @@ export function Step5Review({ onBack }: Props) {
     );
   }
 
-  // ── Review helpers ─────────────────────────────────────────
-  function ReviewRow({ label, value }: { label: string; value?: string }) {
-    if (!value) return null;
-    return (
-      <div className="flex items-start justify-between py-2 border-b border-white/5 last:border-0">
-        <span className="text-xs text-slate-500 shrink-0 w-36">{label}</span>
-        <span className="text-sm text-white text-right">{value}</span>
-      </div>
-    );
-  }
 
   const priceDisplay = listingType === "sale"
     ? `${data.currency ?? "USD"} ${data.price ? Number(data.price).toLocaleString() : "—"}`

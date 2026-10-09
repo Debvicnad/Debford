@@ -8,10 +8,8 @@ import {
   Wrench,
   Users,
   History,
-  Activity,
   AlertTriangle,
   Server,
-  Globe,
 } from "lucide-react";
 import type { PendingItem, AdminUserItem } from "@/lib/actions/admin.actions";
 import type { KycApplicationItem, ServiceProviderModerationItem, AdminAuditLogItem, AdminStatsOverview, AdminTab } from "@/types/admin.types";

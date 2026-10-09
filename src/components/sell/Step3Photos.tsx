@@ -22,12 +22,14 @@ interface UploadState {
 
 interface Props { onNext: () => void; onBack: () => void }
 
+const EMPTY_FILES: File[] = [];
+
 export function Step3Photos({ onNext, onBack }: Props) {
   const { data, setPhotoFiles, removePhoto, setPrimaryPhoto, reorderPhotos } = useSellStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const photoUrls = data.photoUrls ?? [];
-  const photoFiles = data.photoFiles ?? [];
+  const photoFiles = data.photoFiles ?? EMPTY_FILES;
   const primary = data.primaryPhotoIndex ?? 0;
 
   // Upload progress simulation per file
@@ -90,9 +92,6 @@ export function Step3Photos({ onNext, onBack }: Props) {
     setDragFrom(null);
     setDragOver(null);
   }
-
-  const coveredCount = Math.min(photoUrls.length, REQUIRED_SHOTS.length);
-  const coveragePct = Math.round((coveredCount / REQUIRED_SHOTS.length) * 100);
 
   function toggleShot(key: string) {
     setCheckedShots((prev) => {

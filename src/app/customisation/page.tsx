@@ -2,15 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CustomisationStudio } from "@/components/customisation/CustomisationStudio";
 import {
-  Wrench,
-  Palette,
-  Disc,
-  ShieldCheck,
   Sparkles,
   ChevronRight,
-  Flame,
   Star,
-  Award,
 } from "lucide-react";
 
 export const metadata: Metadata = {

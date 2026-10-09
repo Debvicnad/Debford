@@ -84,7 +84,7 @@ export async function getMyConversations(): Promise<{ conversations: Conversatio
 
   // Fetch listing details if any
   const listingIds = (convData ?? []).map((c) => c.listing_id).filter(Boolean);
-  let listingsMap: Record<string, any> = {};
+  const listingsMap: Record<string, any> = {};
 
   if (listingIds.length > 0) {
     const { data: listings } = await db

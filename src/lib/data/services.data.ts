@@ -1,7 +1,6 @@
 import type {
   ServiceProviderItem,
   ServiceRequestItem,
-  ServiceQuoteItem,
   ServiceBookingItem,
 } from "@/types/service.types";
 

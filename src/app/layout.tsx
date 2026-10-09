@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { CartProvider } from "@/lib/context/CartContext";
+import { Footer } from "@/components/layout/Footer";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import "./globals.css";
 
 const inter = Inter({
@@ -74,9 +76,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="antialiased" suppressHydrationWarning>
+      <body className="antialiased min-h-screen bg-[#06090e] text-slate-100" suppressHydrationWarning>
         <CartProvider>
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <div className="flex-1 pb-16 lg:pb-0">
+              {children}
+            </div>
+            <Footer />
+            <MobileBottomNav />
+          </div>
         </CartProvider>
       </body>
     </html>

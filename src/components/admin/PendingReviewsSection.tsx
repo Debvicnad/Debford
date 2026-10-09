@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, useMemo } from "react";
-import Link from "next/link";
 import {
   type PendingItem,
   approveListing,
@@ -9,7 +8,7 @@ import {
   publishAllPending,
 } from "@/lib/actions/admin.actions";
 import { ListingModerationModal } from "./ListingModerationModal";
-import { Eye, Check, X, Search, Filter, Sparkles, CheckCircle2 } from "lucide-react";
+import { Eye, Check, X, Search, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function PendingReviewsSection({
   initialItems,
@@ -204,6 +203,7 @@ export function PendingReviewsSection({
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className="w-16 h-16 rounded-xl bg-slate-800 border border-white/10 shrink-0 overflow-hidden relative">
                       {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={item.imageUrl}
                           alt={item.title}

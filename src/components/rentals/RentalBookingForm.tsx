@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Calendar, CheckCircle2, ShieldCheck, Truck, Sparkles, AlertCircle } from "lucide-react";
+import { ShieldCheck, Truck, AlertCircle } from "lucide-react";
 import { createRentalBooking } from "@/lib/actions/rental.actions";
 
 interface Props {
@@ -17,10 +17,10 @@ interface Props {
 }
 
 const EXTRAS = [
-  { id: "cdw", label: "Collision Damage Waiver", price: 15, desc: "Full coverage for accidental damage" },
-  { id: "gps", label: "GPS Navigation Unit", price: 8, desc: "Portable touchscreen GPS" },
-  { id: "child_seat", label: "Child / Baby Seat", price: 10, desc: "ISOFIX certified seat" },
-  { id: "extra_driver", label: "Additional Authorized Driver", price: 12, desc: "Include second driver on insurance" },
+  { id: "cdw", label: "Collision Damage Waiver", price: 15, desc: "Zero deductible for accidental damage" },
+  { id: "gps", label: "Satellite GPS & Telemetry", price: 8, desc: "Live traffic & speed camera alerts" },
+  { id: "child_seat", label: "ISOFIX Child / Baby Seat", price: 10, desc: "Certified safety seating" },
+  { id: "extra_driver", label: "Additional Authorized Driver", price: 12, desc: "Secondary driver insurance coverage" },
 ];
 
 export function RentalBookingForm({
@@ -80,15 +80,15 @@ export function RentalBookingForm({
   function handleBook() {
     setError(null);
     if (!pickupDate || !returnDate) {
-      setError("Please select pickup and return dates.");
+      setError("Please select both pick-up and return dates.");
       return;
     }
     if (new Date(returnDate) <= new Date(pickupDate)) {
-      setError("Return date must be after pickup date.");
+      setError("Return date must be strictly after pick-up date.");
       return;
     }
     if (delivery && !deliveryAddress.trim()) {
-      setError("Please specify a delivery address.");
+      setError("Please specify a valid delivery address or hotel name.");
       return;
     }
     setStep("confirm");
@@ -119,43 +119,56 @@ export function RentalBookingForm({
 
   if (step === "success") {
     return (
-      <div className="text-center py-6 space-y-4">
-        <div className="w-14 h-14 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-lg shadow-emerald-500/20">
+      <div className="text-center py-6 space-y-5">
+        <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-3xl flex items-center justify-center text-3xl mx-auto shadow-lg shadow-emerald-500/20 animate-bounce">
           🎉
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-white mb-1">Rental Confirmed!</h3>
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold">
+            Dispatch Locked & Confirmed
+          </span>
+          <h3 className="text-xl font-bold text-white">Rental Reserved!</h3>
           <p className="text-slate-300 text-xs">
-            Reserved from <strong className="text-white">{pickupDate}</strong> to <strong className="text-white">{returnDate}</strong> ({days} days).
+            Scheduled from <strong className="text-white font-mono">{pickupDate}</strong> to{" "}
+            <strong className="text-white font-mono">{returnDate}</strong> ({days} days).
           </p>
-          <p className="text-slate-500 text-[11px] mt-1">
-            Booking ID: <code className="text-blue-400 font-mono">{confirmedBookingId?.slice(0, 8) ?? "CONFIRMED"}</code>
+          <p className="text-slate-400 text-xs font-mono mt-1">
+            Reservation ID:{" "}
+            <code className="text-cyan-400 font-bold bg-white/5 px-2 py-0.5 rounded">
+              {confirmedBookingId?.slice(0, 10) ?? "RES-" + Date.now().toString().slice(-6)}
+            </code>
           </p>
         </div>
 
-        <div className="p-3 bg-[#131b2e] rounded-2xl border border-white/5 text-left text-xs space-y-1">
+        <div className="p-4 bg-slate-950/80 rounded-2xl border border-white/5 text-left text-xs font-mono space-y-2">
           <div className="flex justify-between text-slate-400">
-            <span>Total Paid/Reserved</span>
+            <span>Total Payable Amount</span>
             <span className="font-bold text-white">{fmt(total)}</span>
           </div>
           <div className="flex justify-between text-slate-400">
-            <span>Host Protection</span>
-            <span className="text-emerald-400">Verified & Covered</span>
+            <span>Coverage Package</span>
+            <span className="text-emerald-400 font-bold">100% Comprehensive</span>
           </div>
+          {delivery && (
+            <div className="flex justify-between text-slate-400">
+              <span>Delivery Status</span>
+              <span className="text-cyan-400">Doorstep Handover</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2 pt-2">
           <Link
             href="/dashboard"
-            className="block w-full py-3 gradient-brand text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-lg shadow-blue-500/20 text-center transition-all"
+            className="block w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-bold font-mono rounded-xl shadow-lg shadow-blue-600/25 text-center transition-all hover:opacity-95"
           >
-            Go to Dashboard →
+            Go to Garage Dashboard →
           </Link>
           <Link
             href="/messages"
-            className="block w-full py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-xl text-center transition-all"
+            className="block w-full py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-xl text-center transition-all border border-white/10 font-mono"
           >
-            Message Host for Key Handover
+            Message Fleet Concierge
           </Link>
         </div>
       </div>
@@ -164,37 +177,50 @@ export function RentalBookingForm({
 
   if (step === "confirm") {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <h3 className="text-sm font-bold text-white">Review & Confirm</h3>
-          <span className="text-xs font-semibold text-blue-400">{days} Days Total</span>
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold">
+              Final Dispatch Verification
+            </div>
+            <h3 className="text-base font-bold text-white">Review & Lock Reservation</h3>
+          </div>
+          <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-500/30">
+            {days} Days
+          </span>
         </div>
 
-        <div className="bg-[#131b2e] rounded-2xl border border-white/5 divide-y divide-white/5 text-xs">
+        <div className="bg-slate-950/80 rounded-2xl border border-white/5 divide-y divide-white/5 text-xs font-mono">
           {[
-            { label: "Pickup Date", value: pickupDate },
+            { label: "Pick-up Date", value: pickupDate },
             { label: "Return Date", value: returnDate },
             { label: "Rental Rate", value: `${fmt(rentalCost)} (${fmt(effectiveRate)}/day)` },
-            ...(extrasCost > 0 ? [{ label: "Selected Extras", value: fmt(extrasCost) }] : []),
-            ...(deliveryCost > 0 ? [{ label: "Delivery to Address", value: fmt(deliveryCost) }] : []),
-            { label: "Total Amount", value: fmt(total) },
+            ...(extrasCost > 0 ? [{ label: "Equipment & Protection", value: fmt(extrasCost) }] : []),
+            ...(deliveryCost > 0 ? [{ label: "Doorstep Dispatch", value: fmt(deliveryCost) }] : []),
+            { label: "Total Payable", value: fmt(total) },
           ].map((row) => (
             <div key={row.label} className="flex items-center justify-between px-3.5 py-2.5">
               <span className="text-slate-400">{row.label}</span>
-              <span className={`font-semibold ${row.label === "Total Amount" ? "font-extrabold text-blue-400 text-sm" : "text-white"}`}>
+              <span
+                className={`font-semibold ${
+                  row.label === "Total Payable"
+                    ? "font-extrabold text-cyan-400 text-sm"
+                    : "text-white"
+                }`}
+              >
                 {row.value}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2 text-[11px] text-emerald-300 font-medium">
-          <ShieldCheck className="w-4 h-4 shrink-0" />
-          <span>Includes free cancellation up to 48 hours before pickup.</span>
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300">
+          <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span>Includes free cancellation up to 48 hours prior to handover.</span>
         </div>
 
         {error && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+          <div className="p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-xs text-rose-300 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -204,20 +230,20 @@ export function RentalBookingForm({
           <button
             type="button"
             onClick={() => setStep("configure")}
-            className="px-4 py-3 bg-[#131b2e] hover:bg-white/10 text-slate-300 text-xs font-bold rounded-xl border border-white/10 transition-colors"
+            className="px-4 py-3 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold font-mono rounded-xl border border-white/10 transition-colors"
           >
-            ← Back
+            ← Modify
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             disabled={isPending}
-            className="flex-1 py-3 gradient-brand text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-lg shadow-blue-500/25 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold font-mono rounded-xl shadow-lg shadow-emerald-600/25 transition-all disabled:opacity-40 flex items-center justify-center gap-2 border border-emerald-400/30 cursor-pointer"
           >
             {isPending ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <span>Confirm & Book ({fmt(total)})</span>
+              <span>Confirm & Lock ({fmt(total)})</span>
             )}
           </button>
         </div>
@@ -230,7 +256,7 @@ export function RentalBookingForm({
       {/* Date Pickers */}
       <div className="grid grid-cols-2 gap-2.5">
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+          <label className="block text-[10px] font-mono uppercase tracking-wider font-semibold text-slate-400 mb-1">
             Pick-up Date *
           </label>
           <input
@@ -238,53 +264,53 @@ export function RentalBookingForm({
             min={today}
             value={pickupDate}
             onChange={(e) => setPickupDate(e.target.value)}
-            className="w-full bg-[#131b2e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+            className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500 [color-scheme:dark]"
           />
         </div>
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-            Drop-off Date *
+          <label className="block text-[10px] font-mono uppercase tracking-wider font-semibold text-slate-400 mb-1">
+            Return Date *
           </label>
           <input
             type="date"
             min={pickupDate || today}
             value={returnDate}
             onChange={(e) => setReturnDate(e.target.value)}
-            className="w-full bg-[#131b2e] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+            className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500 [color-scheme:dark]"
           />
         </div>
       </div>
 
       {/* Duration & Discount Summary */}
       {days > 0 && (
-        <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl space-y-1">
+        <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl space-y-1 font-mono">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-300 font-medium">
+            <span className="text-slate-300">
               {days} day{days !== 1 ? "s" : ""} × {fmt(effectiveRate)}/day
             </span>
             <span className="font-bold text-white">{fmt(rentalCost)}</span>
           </div>
           {days >= 7 && pricePerWeek && (
             <p className="text-[11px] text-emerald-400">
-              ✓ Weekly discount applied (Saved {fmt((pricePerDay - effectiveRate) * days)})
+              ✓ Extended term tier applied (Saved {fmt((pricePerDay - effectiveRate) * days)})
             </p>
           )}
         </div>
       )}
 
-      {/* Delivery Checkbox */}
+      {/* Doorstep Delivery Option */}
       {deliveryAvailable && (
-        <div className="bg-[#131b2e] rounded-xl p-3 border border-white/5 space-y-2">
+        <div className="bg-slate-950/80 rounded-xl p-3 border border-white/8 space-y-2">
           <label className="flex items-center justify-between cursor-pointer">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-blue-400" />
-              <span className="text-xs font-semibold text-white">Vehicle Delivery Service</span>
+              <span className="text-xs font-semibold text-white">Doorstep Delivery Service</span>
             </div>
             <input
               type="checkbox"
               checked={delivery}
               onChange={(e) => setDelivery(e.target.checked)}
-              className="w-4 h-4 rounded text-blue-600 bg-slate-800 border-white/10"
+              className="w-4 h-4 rounded text-blue-600 bg-slate-800 border-white/10 accent-blue-500"
             />
           </label>
           {delivery && (
@@ -293,57 +319,77 @@ export function RentalBookingForm({
               required
               value={deliveryAddress}
               onChange={(e) => setDeliveryAddress(e.target.value)}
-              placeholder="Enter drop-off address or airport terminal"
-              className="w-full bg-[#0a0d14] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              placeholder="Hotel name, airport gate, or private address..."
+              className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           )}
         </div>
       )}
 
-      {/* Optional Extras */}
+      {/* Optional Extras & Insurance */}
       <div className="space-y-2">
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-          Add Protection & Equipment
+        <span className="text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400 block">
+          Protection & Equipment Packages
         </span>
         <div className="space-y-1.5">
           {EXTRAS.map((extra) => (
             <label
               key={extra.id}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-[#131b2e]/60 hover:bg-[#131b2e] border border-white/5 cursor-pointer transition-colors"
+              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-950 border border-white/5 hover:border-white/15 cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <input
                   type="checkbox"
                   checked={Boolean(extras[extra.id])}
                   onChange={(e) => setExtras({ ...extras, [extra.id]: e.target.checked })}
-                  className="w-4 h-4 rounded text-blue-600 bg-slate-800 border-white/10 shrink-0"
+                  className="w-4 h-4 rounded text-blue-600 bg-slate-800 border-white/10 shrink-0 accent-blue-500"
                 />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-200 block truncate">{extra.label}</span>
+                  <span className="text-xs font-semibold text-slate-200 block truncate">
+                    {extra.label}
+                  </span>
                   <span className="text-[10px] text-slate-500 block truncate">{extra.desc}</span>
                 </div>
               </div>
-              <span className="text-xs font-bold text-blue-400 shrink-0 ml-2">+{fmt(extra.price)}/day</span>
+              <span className="text-xs font-mono font-bold text-cyan-400 shrink-0 ml-2">
+                +{fmt(extra.price)}/day
+              </span>
             </label>
           ))}
         </div>
+      </div>
+
+      {/* Special Requests */}
+      <div>
+        <label className="block text-[10px] font-mono uppercase tracking-wider font-semibold text-slate-400 mb-1">
+          Special Inquiries / Concierge Notes
+        </label>
+        <textarea
+          value={specialRequests}
+          onChange={(e) => setSpecialRequests(e.target.value)}
+          placeholder="e.g. Flight arrival details, preferred hand-off time..."
+          rows={2}
+          className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
+        />
       </div>
 
       {/* Total summary */}
       {total > 0 && (
         <div className="pt-3 border-t border-white/10 flex items-center justify-between">
           <div>
-            <span className="text-[11px] text-slate-400 block">Total Rental Estimate</span>
-            <span className="text-lg font-extrabold text-white">{fmt(total)}</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              Estimated Reservation Total
+            </span>
+            <span className="text-xl font-mono font-black text-white">{fmt(total)}</span>
           </div>
-          <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
-            Instant Confirmation
+          <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+            Instant Dispatch
           </span>
         </div>
       )}
 
       {error && (
-        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+        <div className="p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-xs text-rose-300 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -353,13 +399,13 @@ export function RentalBookingForm({
         type="button"
         onClick={handleBook}
         disabled={!pickupDate || !returnDate}
-        className="w-full py-3.5 gradient-brand text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-lg shadow-blue-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold font-mono rounded-xl shadow-lg shadow-blue-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer border border-blue-400/30"
       >
-        {days > 0 ? `Reserve Now for ${fmt(total)}` : "Select Dates to Book"}
+        {days > 0 ? `Lock Reservation for ${fmt(total)} →` : "Select Dates to Book"}
       </button>
 
-      <p className="text-[11px] text-slate-500 text-center">
-        Free cancellation up to 48 hours before pick-up.
+      <p className="text-[11px] font-mono text-slate-500 text-center">
+        Full refund available up to 48 hours prior to dispatch.
       </p>
     </div>
   );

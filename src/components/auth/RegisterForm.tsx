@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signUp } from "@/lib/actions/auth.actions";
 
-export default function RegisterForm() {
+export default function RegisterForm({ defaultRole: _defaultRole = "buyer" }: { defaultRole?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -13,9 +13,17 @@ export default function RegisterForm() {
     setError(null);
     setSuccess(null);
     startTransition(async () => {
-      const result = await signUp(formData);
+      const result = await signUp(formData) as { error?: string; success?: string | boolean; redirectTo?: string };
       if (result?.error) setError(result.error);
-      if (result?.success) setSuccess(result.success);
+      if (result?.success) {
+        if (typeof result.success === "string") {
+          setSuccess(result.success);
+        } else if (result.redirectTo) {
+          window.location.href = result.redirectTo;
+        } else {
+          window.location.href = "/dashboard";
+        }
+      }
     });
   }
 

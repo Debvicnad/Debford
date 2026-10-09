@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Bell } from "lucide-react";
+import { getUnreadNotificationCount } from "@/lib/actions/notification.actions";
 
 const NAV_ITEMS = [
   { href: "/vehicles", label: "Buy" },
@@ -15,6 +17,7 @@ const NAV_ITEMS = [
 
 const USER_MENU = [
   { href: "/dashboard", label: "Dashboard", icon: "📊" },
+  { href: "/offers", label: "Offers & Deals", icon: "🏷️" },
   { href: "/garage", label: "My Garage", icon: "🏠" },
   { href: "/saved", label: "Saved", icon: "🤍" },
   { href: "/messages", label: "Messages", icon: "💬" },
@@ -34,12 +37,9 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  // Hide on dedicated full-screen routes
-  if (pathname.startsWith("/sell") || pathname.startsWith("/ai")) return null;
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Scroll detection for glass effect
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -47,19 +47,30 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
   }, []);
 
   // Close on outside click
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const close = () => { setUserOpen(false); setMenuOpen(false); };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
 
+  // Fetch unread notification count
+  useEffect(() => {
+    getUnreadNotificationCount()
+      .then((count) => setUnreadCount(count))
+      .catch(() => {});
+  }, [pathname]);
+
+  // Hide on dedicated full-screen routes
+  if (pathname.startsWith("/sell") || pathname.startsWith("/ai")) return null;
+
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : "U";
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled ? "surface-raised shadow-2xl shadow-black/25 border-b border-subtle" : "bg-transparent"
+        scrolled
+          ? "bg-[#0a0d14]/90 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-white/10"
+          : "bg-gradient-to-b from-black/85 via-black/40 to-transparent"
       }`}
     >
       <nav className="container-debford flex items-center justify-between h-16">
@@ -111,6 +122,21 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
             🤖
           </Link>
 
+          {/* Notifications Bell */}
+          <Link
+            href="/notifications"
+            aria-label="Notifications"
+            className="relative w-9 h-9 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-white/20 transition-all"
+            title="Activity & Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow-md shadow-amber-500/40">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
+
           {/* Sell CTA */}
           <Link
             href="/sell"
@@ -141,14 +167,21 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setUserOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                      className={`flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                         pathname === item.href
                           ? "text-white bg-blue-500/15"
                           : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      <span className="text-base">{item.icon}</span>
-                      {item.label}
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </div>
+                      {item.href === "/notifications" && unreadCount > 0 && (
+                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black bg-amber-500 text-slate-950">
+                          {unreadCount}
+                        </span>
+                      )}
                     </Link>
                   ))}
                   <div className="border-t border-white/8 mt-1 pt-1">
@@ -213,8 +246,21 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
             </Link>
             <div className="border-t border-white/8 pt-3 mt-3 space-y-1">
               {USER_MENU.slice(0, 5).map((item) => (
-                <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white transition-colors">
-                  <span>{item.icon}</span>{item.label}
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-between px-4 py-2.5 text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </div>
+                  {item.href === "/notifications" && unreadCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black bg-amber-500 text-slate-950">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { createServiceRequest, type ServiceRequestPayload } from "@/lib/actions/service.actions";
 
 const SERVICE_TYPES = [
@@ -250,12 +251,12 @@ function SuccessState({ requestId }: { requestId: string }) {
       </p>
       <p className="text-slate-600 text-xs mb-8">Request ID: {requestId}</p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <a href="/services/requests" className="px-6 py-3 gradient-brand text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity">
+        <Link href="/services/requests" className="px-6 py-3 gradient-brand text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity">
           View Quotes & Track Request →
-        </a>
-        <a href="/services/providers" className="px-6 py-3 glass border border-white/10 text-slate-300 text-sm font-medium rounded-xl hover:border-white/20 hover:text-white transition-all">
+        </Link>
+        <Link href="/services/providers" className="px-6 py-3 glass border border-white/10 text-slate-300 text-sm font-medium rounded-xl hover:border-white/20 hover:text-white transition-all">
           Browse Directory
-        </a>
+        </Link>
       </div>
     </div>
   );

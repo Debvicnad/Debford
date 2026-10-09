@@ -17,7 +17,7 @@ export function AddToCartButton({
   size = "md",
   className = "",
 }: Props) {
-  const { addItem, isMounted } = useCart();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
 

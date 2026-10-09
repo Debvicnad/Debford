@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition, useCallback } from "react";
 import { useSellStore, type ListingType, type VehicleTypeSlug } from "@/stores/sell.store";
-import { Loader2, Scan, CheckCircle2, AlertCircle, Zap } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, Zap } from "lucide-react";
 
 const MAKES = [
   "Acura", "Alfa Romeo", "Aston Martin", "Audi", "Bentley", "BMW",

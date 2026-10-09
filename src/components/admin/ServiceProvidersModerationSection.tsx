@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ShieldCheck, ShieldAlert, Wrench, Phone, Mail, Star, MapPin, Check, X, Badge } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Phone, Star, MapPin } from "lucide-react";
 import type { ServiceProviderModerationItem } from "@/types/admin.types";
 import { reviewServiceProvider } from "@/lib/actions/admin.actions";
 

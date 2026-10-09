@@ -109,7 +109,7 @@ export function AdminAuditLogFeed({ logs }: Props) {
               </p>
             </div>
           ) : (
-            logs.map((log, idx) => {
+            logs.map((log) => {
               const meta = ACTION_META[log.actionType] ?? ACTION_META["approve_listing"];
               const { label, Icon, color, bg, border } = meta;
 

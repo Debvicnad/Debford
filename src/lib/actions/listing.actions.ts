@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -251,7 +250,7 @@ export async function createListing(payload: CreateListingPayload) {
 
     return { success: true, vehicleId: vehicle.id, listingId };
 
-  } catch (err) {
+  } catch {
     return { error: "An unexpected error occurred. Please try again." };
   }
 }
@@ -263,7 +262,7 @@ export async function createListing(payload: CreateListingPayload) {
 export async function getPhotoUploadUrl(
   vehicleId: string,
   fileName: string,
-  mimeType: string
+  _mimeType: string
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

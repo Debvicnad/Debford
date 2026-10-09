@@ -42,7 +42,7 @@ export default async function RegisterPage({
 
         {/* Card */}
         <div className="glass rounded-2xl border border-white/10 p-8">
-          <RegisterForm />
+          <RegisterForm defaultRole={defaultRole} />
         </div>
 
         {/* Login link */}

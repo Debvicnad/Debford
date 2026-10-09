@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CheckoutClient } from "@/components/checkout/CheckoutClient";
+import { Navbar } from "@/components/layout/Navbar";
 
 export const metadata: Metadata = {
   title: "Secure Escrow & Checkout — Debford",
@@ -79,21 +80,24 @@ export default async function CheckoutPage({
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen surface-base flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-        </div>
-      }
-    >
-      <CheckoutClient
-        checkoutType={checkoutType}
-        vehicle={vehiclePreview}
-        boostPlan={boostPlan}
-        membershipPlan={sp.plan}
-        initialSuccessRef={initialSuccessRef}
-        isAuthenticated={!!user}
-      />
-    </Suspense>
+    <div className="min-h-screen text-slate-100 flex flex-col" style={{ backgroundColor: "#06090e" }}>
+      <Navbar userEmail={user?.email} />
+      <Suspense
+        fallback={
+          <div className="min-h-[70vh] flex items-center justify-center">
+            <div className="w-10 h-10 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <CheckoutClient
+          checkoutType={checkoutType}
+          vehicle={vehiclePreview}
+          boostPlan={boostPlan}
+          membershipPlan={sp.plan}
+          initialSuccessRef={initialSuccessRef}
+          isAuthenticated={!!user}
+        />
+      </Suspense>
+    </div>
   );
 }

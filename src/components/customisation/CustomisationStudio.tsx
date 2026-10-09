@@ -8,17 +8,12 @@ import {
   Layers,
   Wrench,
   Sparkles,
-  CheckCircle2,
   AlertCircle,
-  Download,
   Share2,
-  ChevronRight,
   ShieldCheck,
-  Zap,
   Gauge,
   Flame,
   ArrowRight,
-  Copy,
   Check,
 } from "lucide-react";
 import { submitCustomBuildQuote } from "@/lib/actions/customisation.actions";
@@ -239,7 +234,7 @@ export function CustomisationStudio() {
 
   function handleShareBuild() {
     const summary = `${currentVehicleInfo.baseModel} — Custom Build ($${totalBuildPrice.toLocaleString()}): ${paint.name} on ${wheel.name}`;
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(`${summary} — ${window.location.href}`);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   }
@@ -563,7 +558,7 @@ export function CustomisationStudio() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as "paint" | "wheels" | "aero" | "performance")}
                   className={`flex flex-col items-center gap-1 py-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
                     activeTab === tab.id
                       ? "gradient-brand text-white shadow-lg shadow-blue-500/25"

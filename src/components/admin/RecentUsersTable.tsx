@@ -6,7 +6,7 @@ import {
   updateUserRole,
   updateUserVerificationStatus,
 } from "@/lib/actions/admin.actions";
-import { ShieldCheck, ShieldAlert, Check, X } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export function RecentUsersTable({
   initialUsers,
