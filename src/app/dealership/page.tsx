@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/db/queries";
 import { Navbar } from "@/components/layout/Navbar";
+import { getDealerAnalytics } from "@/lib/actions/dealer.actions";
+import { DealerAnalyticsClient } from "@/components/dealership/DealerAnalyticsClient";
 import {
   ChevronRight,
   ShieldCheck,
@@ -82,6 +84,26 @@ export default async function DealershipPage() {
     }
   }
   if (!user && isSupabaseConfigured()) redirect("/login?redirectTo=/dealership");
+
+  const analytics = await getDealerAnalytics();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    name: "Prestige Motors — Debford Certified Dealer",
+    description: "Verified dealership fleet command, inventory, and escrow sales on Debford.",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "New York",
+      addressRegion: "NY",
+      addressCountry: "US",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.9",
+      reviewCount: "187",
+    },
+  };
 
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -203,9 +225,10 @@ export default async function DealershipPage() {
       {/* ── MAIN COMMAND GRID ───────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Left: Inventory Fleet Table */}
-          <div className="xl:col-span-2 bg-[#0d1322]/80 backdrop-blur-xl rounded-2xl border border-white/8 shadow-2xl overflow-hidden">
-            {/* Table Header */}
+          {/* Left: Inventory Fleet Table & Analytics */}
+          <div className="xl:col-span-2 space-y-6">
+            <div className="bg-[#0d1322]/80 backdrop-blur-xl rounded-2xl border border-white/8 shadow-2xl overflow-hidden">
+              {/* Table Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
               <div className="flex items-center gap-2">
                 <Car className="w-4 h-4 text-blue-400" />
@@ -307,6 +330,10 @@ export default async function DealershipPage() {
               </Link>
             </div>
           </div>
+
+          {/* Dealer Analytics Telemetry Suite */}
+          <DealerAnalyticsClient analytics={analytics} />
+        </div>
 
           {/* Right Column */}
           <div className="space-y-5">
@@ -421,6 +448,12 @@ export default async function DealershipPage() {
           </div>
         </div>
       </div>
+
+      {/* Dealership Schema JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </main>
   );
 }

@@ -1,4 +1,4 @@
-export type AdminTab = "overview" | "listings" | "kyc" | "providers" | "users" | "audit";
+export type AdminTab = "overview" | "listings" | "kyc" | "providers" | "users" | "audit" | "analytics";
 
 export interface KycApplicationItem {
   id: string;

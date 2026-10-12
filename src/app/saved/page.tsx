@@ -19,6 +19,8 @@ import {
   Bell,
   Clock,
 } from "lucide-react";
+import { getSavedSearches } from "@/lib/actions/savedsearch.actions";
+import { SavedSearchesClient } from "@/components/saved/SavedSearchesClient";
 
 export const metadata: Metadata = {
   title: "Saved Vehicles & Watchlist Vault — Debford",
@@ -80,7 +82,7 @@ const SAVED_VEHICLES = [
   },
 ];
 
-const SAVED_SEARCHES = [
+const SAVED_SEARCHES_DEMO = [
   {
     id: "ss1",
     name: "Porsche 911 GT3 & GT3 RS",
@@ -133,6 +135,20 @@ export default async function SavedPage({
 }) {
   const resolved = await searchParams;
   const activeTab = resolved?.tab ?? "vehicles";
+
+  // Load real saved searches from DB (falls back to empty array)
+  const savedSearches = await getSavedSearches();
+  // Use demo searches if no DB searches yet
+  const searchesForDisplay =
+    savedSearches.length > 0
+      ? savedSearches
+      : SAVED_SEARCHES_DEMO.map((ss) => ({
+          id: ss.id,
+          name: ss.name,
+          filters: Object.fromEntries(ss.filters.map((f) => [f.label, f.value])),
+          alertsEnabled: ss.alertsEnabled,
+          createdAt: ss.savedAt,
+        }));
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", {
@@ -224,7 +240,7 @@ export default async function SavedPage({
         <div className="flex items-center gap-2 mb-6">
           {[
             { key: "vehicles", label: `Saved Vehicles (${SAVED_VEHICLES.length})` },
-            { key: "searches", label: `Search Agents & Alerts (${SAVED_SEARCHES.length})` },
+            { key: "searches", label: `Search Agents & Alerts (${searchesForDisplay.length})` },
           ].map((tab) => {
             const isActive = activeTab === tab.key;
             return (
@@ -365,69 +381,12 @@ export default async function SavedPage({
           </div>
         )}
 
-        {/* ── Tab 2: Saved Searches ─────────────────────────────── */}
+        {/* ── Tab 2: Saved Searches ───────────────────────────────── */}
         {activeTab === "searches" && (
-          <div className="space-y-4">
-            {SAVED_SEARCHES.map((ss) => (
-              <div
-                key={ss.id}
-                className="rounded-3xl border border-white/10 p-5 bg-[#080c14]/85 hover:border-white/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <h3 className="text-sm font-bold text-white">{ss.name}</h3>
-                    <span className="text-[10px] font-mono text-slate-500">Saved {ss.savedAt}</span>
-                  </div>
-
-                  {/* Filter Badges */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {ss.filters.map((f, i) => (
-                      <span
-                        key={i}
-                        className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] text-slate-300"
-                      >
-                        <strong className="text-slate-400">{f.label}:</strong> {f.value}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                  <div className="text-left sm:text-right">
-                    <span className="text-sm font-bold text-emerald-400 block font-mono">
-                      {ss.results} Matches
-                    </span>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                      <Bell className="w-3 h-3 text-blue-400" /> Instant Push Alert
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href="/vehicles"
-                      className="px-4 py-2 rounded-xl text-white text-xs font-bold shadow-md transition-all hover:opacity-95 flex items-center gap-1.5"
-                      style={{
-                        background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-                      }}
-                    >
-                      <span>Run Search</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-
-                    <button
-                      type="button"
-                      className="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                      title="Delete saved search"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <SavedSearchesClient initialSearches={searchesForDisplay} />
         )}
       </div>
     </div>
   );
 }
+

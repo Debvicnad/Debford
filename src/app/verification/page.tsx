@@ -22,12 +22,31 @@ export const metadata: Metadata = {
 };
 
 export default async function VerificationPage() {
-  if (!isSupabaseConfigured()) redirect("/login?redirectTo=/verification");
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirectTo=/verification");
+  let user: any = null;
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      user = authUser;
+    } catch {
+      user = null;
+    }
+  }
+
+  if (!user && isSupabaseConfigured()) {
+    redirect("/login?redirectTo=/verification");
+  }
+
+  if (!user) {
+    user = {
+      id: "demo-user-1",
+      email: "demo@debford.com",
+      phone: "+1 (555) 019-2834",
+      user_metadata: { full_name: "Demo Operator" },
+    };
+  }
 
   const { data } = await getMyVerificationStatus();
 

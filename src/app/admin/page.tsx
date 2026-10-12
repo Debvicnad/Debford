@@ -8,6 +8,7 @@ import {
   getPendingServiceProviders,
   getAdminAuditLogs,
 } from "@/lib/actions/admin.actions";
+import { getPlatformAnalytics } from "@/lib/actions/analytics.actions";
 import { AdminDashboardHub } from "@/components/admin/AdminDashboardHub";
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ function AdminNavLink({
 }
 
 export default async function AdminPage() {
-  const [pendingListings, stats, users, kycApplications, serviceProviders, auditLogs] =
+  const [pendingListings, stats, users, kycApplications, serviceProviders, auditLogs, analytics] =
     await Promise.all([
       getPendingListings(),
       getAdminStats(),
@@ -51,6 +52,7 @@ export default async function AdminPage() {
       getPendingKycApplications(),
       getPendingServiceProviders(),
       getAdminAuditLogs(30),
+      getPlatformAnalytics(),
     ]);
 
   const urgentCount =
@@ -113,6 +115,7 @@ export default async function AdminPage() {
           </div>
           <AdminNavLink href="/vehicles" icon="🌐" label="Live Marketplace" />
           <AdminNavLink href="/services/providers" icon="🔩" label="Services Directory" />
+          <AdminNavLink href="/admin#analytics" icon="📈" label="Analytics" />
           <AdminNavLink href="/" icon="↗" label="Public Website" />
         </nav>
 
@@ -138,6 +141,7 @@ export default async function AdminPage() {
         serviceProviders={serviceProviders}
         users={users}
         auditLogs={auditLogs}
+        analytics={analytics}
       />
     </div>
   );

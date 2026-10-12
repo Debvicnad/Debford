@@ -25,6 +25,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Browse Vehicles | Cars, Motorcycles & Trucks | Debford",
   description:

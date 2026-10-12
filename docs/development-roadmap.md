@@ -1,4 +1,4 @@
-# DEBFORD â€” Development Roadmap
+﻿# DEBFORD â€” Development Roadmap
 
 ---
 
@@ -209,12 +209,12 @@ No phase begins in earnest until the previous phase is stable and coherent.
 - [x] AI listing assistant (description, specs, title generation)
 - [x] AI service matching
 - [x] AI automotive assistant (Q&A, maintenance advice) â€” `AIAssistantClient` (DEBA)
-- [ ] Advanced saved searches with alerts
-- [ ] Platform analytics dashboard (admin) â€” stub present, needs full metrics
-- [ ] Advanced dealer analytics
-- [ ] Recommendation engine
-- [ ] Performance optimizations (caching, ISR, edge middleware)
-- [ ] Advanced SEO (sitemap, structured data, OG images)
+- [x] Advanced saved searches with alerts — savedsearch.actions.ts, SavedSearchesClient
+- [x] Platform analytics dashboard (admin) — nalytics.actions.ts, AdminAnalyticsPanel
+- [x] Advanced dealer analytics — dealer.actions.ts, DealerAnalyticsClient
+- [x] Recommendation engine — ecommendation.actions.ts, RecommendedVehiclesSection
+- [x] Performance optimizations (caching, ISR, edge proxy)
+- [x] Advanced SEO (sitemap.ts, robots.ts, schema.org JSON-LD structured data)
 
 ### Estimated effort: 6â€“8 weeks
 

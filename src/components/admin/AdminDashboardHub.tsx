@@ -10,14 +10,17 @@ import {
   History,
   AlertTriangle,
   Server,
+  BarChart2,
 } from "lucide-react";
 import type { PendingItem, AdminUserItem } from "@/lib/actions/admin.actions";
 import type { KycApplicationItem, ServiceProviderModerationItem, AdminAuditLogItem, AdminStatsOverview, AdminTab } from "@/types/admin.types";
+import type { PlatformAnalytics } from "@/lib/actions/analytics.actions";
 import { PendingReviewsSection } from "./PendingReviewsSection";
 import { KycReviewSection } from "./KycReviewSection";
 import { ServiceProvidersModerationSection } from "./ServiceProvidersModerationSection";
 import { RecentUsersTable } from "./RecentUsersTable";
 import { AdminAuditLogFeed } from "./AdminAuditLogFeed";
+import { AdminAnalyticsPanel } from "./AdminAnalyticsPanel";
 import Link from "next/link";
 
 interface Props {
@@ -27,6 +30,7 @@ interface Props {
   serviceProviders: ServiceProviderModerationItem[];
   users: AdminUserItem[];
   auditLogs: AdminAuditLogItem[];
+  analytics: PlatformAnalytics;
 }
 
 const TABS: { id: AdminTab; label: string; Icon: React.ElementType; badge?: (p: Props) => number }[] = [
@@ -36,6 +40,7 @@ const TABS: { id: AdminTab; label: string; Icon: React.ElementType; badge?: (p: 
   { id: "providers",  label: "Providers",      Icon: Wrench,      badge: (p) => p.serviceProviders.filter((sp) => sp.verificationStatus === "pending").length },
   { id: "users",      label: "Users",          Icon: Users },
   { id: "audit",      label: "Audit Trail",    Icon: History },
+  { id: "analytics",  label: "Analytics",      Icon: BarChart2 },
 ];
 
 function StatCard({
@@ -78,10 +83,11 @@ export function AdminDashboardHub({
   serviceProviders,
   users,
   auditLogs,
+  analytics,
 }: Props) {
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
 
-  const props: Props = { stats, pendingListings, kycApplications, serviceProviders, users, auditLogs };
+  const props: Props = { stats, pendingListings, kycApplications, serviceProviders, users, auditLogs, analytics };
 
   const urgentCount =
     pendingListings.length +
@@ -295,6 +301,13 @@ export function AdminDashboardHub({
         {activeTab === "audit" && (
           <div className="glass rounded-3xl border border-white/10 p-6">
             <AdminAuditLogFeed logs={auditLogs} />
+          </div>
+        )}
+
+        {/* ─── ANALYTICS TAB ─────────────────────────────────────────── */}
+        {activeTab === "analytics" && (
+          <div className="glass rounded-3xl border border-white/10 p-6">
+            <AdminAnalyticsPanel analytics={analytics} />
           </div>
         )}
       </div>

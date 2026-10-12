@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { getSaleListingBySlug, getSaleListings } from "@/lib/db/queries";
+import { getSaleListingBySlug } from "@/lib/db/queries";
 import { VehicleShowroomGallery } from "@/components/vehicles/VehicleShowroomGallery";
 import { VehicleTelemetrySpecs } from "@/components/vehicles/VehicleTelemetrySpecs";
 import { VehicleInspectionReport } from "@/components/vehicles/VehicleInspectionReport";
 import { VehicleFinanceCalculator } from "@/components/vehicles/VehicleFinanceCalculator";
 import { VehiclePurchaseSidebar } from "@/components/vehicles/VehiclePurchaseSidebar";
+import { getRecommendations } from "@/lib/actions/recommendation.actions";
+import { RecommendedVehiclesSection } from "@/components/vehicles/RecommendedVehiclesSection";
 
 export async function generateMetadata({
   params,
@@ -47,11 +49,53 @@ export default async function VehicleDetailPage({
     "Verified Escrow Purchase Eligible",
   ];
 
-  // Fetch similar vehicles for bottom discovery row
-  const { listings: relatedListings } = await getSaleListings({ limit: 3 });
-  const otherVehicles = relatedListings.filter(
-    (item: any) => item.id !== listing.id && item.slug !== listing.slug
-  ).slice(0, 3);
+  // Fetch AI-powered recommendation matches
+  const recommendedVehicles = await getRecommendations({
+    currentListingId: listing.id,
+    make: v.make_name,
+    model: v.model_name,
+    bodyType: v.body_type,
+    price: listing.price,
+    fuelType: v.fuel_type,
+    year: v.year,
+    limit: 4,
+  });
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Car",
+    name: listing.title,
+    description:
+      listing.meta_description ||
+      `${listing.title} available for verified escrow purchase on Debford. 150-Point Certified Inspection included.`,
+    image: rawImages.map((img: any) => img.url),
+    vehicleModelDate: v.year,
+    brand: {
+      "@type": "Brand",
+      name: v.make_name || "Vehicle",
+    },
+    model: v.model_name,
+    bodyType: v.body_type,
+    fuelType: v.fuel_type,
+    vehicleTransmission: v.transmission,
+    mileageFromOdometer: v.mileage
+      ? {
+          "@type": "QuantitativeValue",
+          value: v.mileage,
+          unitCode: v.mileage_unit === "mi" ? "SMI" : "KMT",
+        }
+      : undefined,
+    offers: {
+      "@type": "Offer",
+      price: listing.price,
+      priceCurrency: listing.currency ?? "USD",
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: seller.full_name || "Debford Verified Dealer",
+      },
+    },
+  };
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", {
@@ -179,74 +223,15 @@ export default async function VehicleDetailPage({
           </div>
         </div>
 
-        {/* Similar Vehicles Discovery Row */}
-        {otherVehicles.length > 0 && (
-          <section className="mt-16 pt-12 border-t border-white/8 space-y-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold mb-1">
-                  Discovery Network
-                </div>
-                <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                  Similar Performance Vehicles in Showroom
-                </h3>
-              </div>
-              <Link
-                href="/vehicles"
-                className="text-xs font-mono font-semibold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5"
-              >
-                <span>Browse Full Showroom</span>
-                <span>→</span>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {otherVehicles.map((other: any) => {
-                const ov = other.vehicle || {};
-                const oImg =
-                  ov.images?.find((img: any) => img.is_primary)?.url ||
-                  ov.images?.[0]?.url ||
-                  "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1600&q=80";
-
-                return (
-                  <Link
-                    key={other.id}
-                    href={`/vehicles/${other.slug || other.id}`}
-                    className="group bg-slate-900/60 rounded-2xl border border-white/8 hover:border-white/20 overflow-hidden transition-all backdrop-blur-md flex flex-col justify-between"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={oImg}
-                        alt={other.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-white bg-black/60 px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/10">
-                          {fmt(other.price)}
-                        </span>
-                        <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-                          {ov.year} {ov.transmission}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 space-y-2">
-                      <h4 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">
-                        {other.title}
-                      </h4>
-                      <p className="text-xs text-slate-400 font-mono">
-                        📍 {ov.city ?? "Showroom"} · {ov.mileage ? `${ov.mileage.toLocaleString()} km` : "New"}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        {/* AI Recommendations Engine Row */}
+        <RecommendedVehiclesSection matches={recommendedVehicles} />
       </main>
+
+      {/* SEO Structured Data Schema (JSON-LD) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </div>
   );
 }
