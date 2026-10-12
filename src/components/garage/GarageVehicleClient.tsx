@@ -535,7 +535,7 @@ export function GarageVehicleClient({ vehicle }: Props) {
               Predictive Maintenance Schedules
             </h2>
             <p className="text-xs text-slate-400 font-light mt-0.5">
-              Automated service intervals calibrated to your vehicle's odometer and age.
+              Automated service intervals calibrated to your vehicle&apos;s odometer and age.
             </p>
           </div>
 

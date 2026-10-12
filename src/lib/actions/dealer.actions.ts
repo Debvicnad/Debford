@@ -40,7 +40,7 @@ export interface DealerAnalyticsOverview {
 }
 
 export async function getDealerAnalytics(
-  dealerId?: string
+  _dealerId?: string
 ): Promise<DealerAnalyticsOverview> {
   // Base default/mock data for dealers with realistic telemetry
   const fallbackAnalytics: DealerAnalyticsOverview = {

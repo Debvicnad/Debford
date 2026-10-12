@@ -145,6 +145,30 @@ async function getDbClient() {
 }
 
 /**
+ * Server-side admin authorization guard.
+ * Verifies the calling user exists and has role='admin'.
+ * Throws a structured error that the caller can surface to the client.
+ */
+async function requireAdmin(): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: authentication required.");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile || profile.role !== "admin") {
+    throw new Error("Forbidden: admin role required.");
+  }
+}
+
+/**
  * Helper to log an administrative audit action
  */
 export async function logAdminAction(item: {
@@ -409,6 +433,7 @@ export async function approveListing(
   type: "sale" | "rental" | "auction" = "sale"
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
     const table =
       type === "sale" ? "sale_listings" : type === "rental" ? "rental_listings" : "auctions";
@@ -476,6 +501,7 @@ export async function rejectListing(
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
     const table =
       type === "sale" ? "sale_listings" : type === "rental" ? "rental_listings" : "auctions";
@@ -533,6 +559,7 @@ export async function rejectListing(
  */
 export async function publishAllPending(): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
 
     await Promise.all([
@@ -703,6 +730,7 @@ export async function updateUserRole(
   newRole: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
     await db.from("profiles").update({ role: newRole }).eq("id", userId);
 
@@ -730,6 +758,7 @@ export async function updateUserVerificationStatus(
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
     await db.from("profiles").update({ verification_status: status }).eq("id", userId);
 
@@ -828,6 +857,7 @@ export async function reviewKycApplication(
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
     const newStatus = action === "approve" ? "verified" : "rejected";
 
@@ -959,6 +989,7 @@ export async function reviewServiceProvider(
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAdmin();
     const db = await getDbClient();
 
     let newStatus: "verified" | "rejected" | "pending" = "verified";

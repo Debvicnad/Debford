@@ -329,7 +329,7 @@ export async function counterOffer(input: {
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (err: any) {
+  } catch (_err: any) {
     return { success: true };
   }
 }
@@ -415,7 +415,7 @@ export async function acceptOffer(offerId: string): Promise<{ success: boolean; 
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (err: any) {
+  } catch (_err: any) {
     return { success: true };
   }
 }
@@ -474,7 +474,7 @@ export async function rejectOffer(offerId: string, reason?: string): Promise<{ s
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (err: any) {
+  } catch (_err: any) {
     return { success: true };
   }
 }
@@ -506,7 +506,7 @@ export async function withdrawOffer(offerId: string): Promise<{ success: boolean
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (err: any) {
+  } catch (_err: any) {
     return { success: true };
   }
 }

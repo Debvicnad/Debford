@@ -249,7 +249,7 @@ export default async function PartDetailPage({
                 100% Direct-Fit Compatibility
               </h2>
               <p className="text-xs leading-relaxed" style={{ color: "rgba(148,163,184,0.65)" }}>
-                This part is guaranteed to fit the following vehicle makes and models. If it doesn't fit, Debford will arrange a free return and full refund — no questions asked.
+                This part is guaranteed to fit the following vehicle makes and models. If it doesn&apos;t fit, Debford will arrange a free return and full refund — no questions asked.
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -691,7 +691,7 @@ export default async function PartDetailPage({
                 }}
               >
                 <div className="text-xs font-semibold" style={{ color: "rgba(148,163,184,0.6)" }}>
-                  Need a different variant or can't find your part?
+                  Need a different variant or can&apos;t find your part?
                 </div>
                 <Link
                   href="/services/request"

@@ -1,7 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { isSupabaseConfigured, getSaleListings } from "@/lib/db/queries";
+import { getSaleListings } from "@/lib/db/queries";
 
 export interface RecommendationMatch {
   listing: any;

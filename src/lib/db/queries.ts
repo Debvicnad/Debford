@@ -656,7 +656,7 @@ export async function getSaleListingBySlug(slug: string) {
   }
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("sale_listings")
       .select(
         `
